@@ -9,30 +9,33 @@ const Navbar = () => {
             <div className="container-fluid">
                 <Link className="navbar-brand fuente-palabras" to="/">
                     <img src="/img/logoRV.jpg" alt="imgEmpresa" className="img-fluid logo-nav" />
-                </Link>
+                </Link>  
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
                 
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li className="nav-item dropdown">
-                            <a className="nav-link dropdown-toggle menu-letras" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Menú
-                            </a>
-                            <ul className="dropdown-menu fondo-menu-desplegable">
-                                <li><Link className="dropdown-item fuente-palabras" to="/">Home</Link></li>
-                                <li><Link className="dropdown-item fuente-palabras" to="/productos">Productos</Link></li>
-                                <li><Link className="dropdown-item fuente-palabras" to="/nosotros">Nosotros</Link></li>
-                                <li><Link className="dropdown-item fuente-palabras" to="/blog">Blogs</Link></li>
-                                <li><Link className="dropdown-item fuente-palabras" to="/contacto">Contacto</Link></li>
-                            </ul>
+                    <ul className="navbar-nav mb-2 mb-lg-0">
+                        <li className="nav-item me-3">
+                            <Link className="nav-link fuente-palabras" to="/">Home</Link>
+                        </li>
+                        <li className="nav-item me-3">
+                            <Link className="nav-link fuente-palabras" to="/productos">Productos</Link>
+                        </li>
+                        <li className="nav-item me-3">
+                            <Link className="nav-link fuente-palabras" to="/nosotros">Nosotros</Link>
+                        </li>
+                        <li className="nav-item me-3">
+                            <Link className="nav-link fuente-palabras" to="/blog">Blogs</Link>
+                        </li>
+                        <li className="nav-item me-4">
+                            <Link className="nav-link fuente-palabras" to="/contacto">Contacto</Link>
                         </li>
                     </ul>
 
-                    <div className="align-items-center">
-                        <Link to="/carrito" className="btn">
-                            <img src="/img/carrito.svg" alt="Icono Carro" className="img-fluid carrito-estilo" />
+                    <div className="align-items-center ms-auto">
+                        <Link to="/carrito" className="btn d-flex align-items-center">
+                            <img src="/img/carrito.svg" alt="Icono Carro" className="img-fluid carrito-estilo me-2" />
                             <span className="fuente-palabras" style={{color: 'white'}}>CARRO</span>
                             <span id="contador-carrito" className="ms-2 fuente-palabras" style={{color: 'white'}}>{cartCount}</span>
                         </Link>

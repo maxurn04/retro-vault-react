@@ -219,15 +219,17 @@
 }
 
 .boton-reini{
-    border: 2px solid #000000;
+    background-color: #bca624;
+    color: white;
+    border: none;
     font-weight: bold;
-    border-radius: 5px;
-    background-color: #ffffff;
+    border-radius: 10px;
+    transition: 0.3s;
 }
 
 .boton-reini:hover{
-    background-color: #303030;
-    color: #ffffff;
+    background-color: #9c8a1e; 
+    color: white;
 }
 .carrito-estilo{
     width: 25px; 
