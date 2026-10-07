@@ -1,0 +1,482 @@
+.fondo-color {
+    background-image: url("/img/bf-degra.svg");
+    background-size: cover;
+}
+.navbar-estilo{
+    background-color: #3f4738 !important;
+    border-bottom: 5px solid #bca624;
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+}
+
+.imagen-productos {
+    width: 100%;
+    height: 160px;
+    object-fit: contain; 
+    background-color: #ffffff; 
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.imagen-productos-grande {
+    width: 100%;
+    height: 350px !important;
+    object-fit: contain; 
+    background-color: #ffffff; 
+    border-radius: 15px;
+}
+.linea-separacion{
+    border-top: 2px solid #ccc;
+    border-radius: 1px;
+    opacity: 1;
+    margin: 10px 0; 
+    padding-bottom: 20px;
+}
+.fuente-palabras{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: bold;
+    color: #eff6ee;
+}
+
+.menu-letras{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: bold;
+    color: #eff6ee;
+}
+
+.menu-letras:hover{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: bold;
+    color: #cacaca;
+}
+.menu-letras:active{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: light;
+    color: #ffffff;
+}
+
+.menu-letras:focus{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: bold;
+    color: #a5a5a5;
+}
+
+.movimiento-inicio-sesion{
+    color: #bca624;
+    text-align: right;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+.logo-nav {
+    width: 80px;
+    border-radius: 30px;
+    border: 2px solid #6b795f;
+}
+
+.fondo-menu-desplegable {
+    background-color: #6b795f;
+}
+
+.texto-bienvenida {
+    font-size: 20px;
+}
+
+.texto-descripcion-inicio {
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding-left: 10px;
+}
+
+.titulo-destacados {
+    background-color: #3f4738;
+    border-radius: 20px;
+}
+
+.enlace-ver-mas {
+    color: #bca624;
+    font-size: 90%;
+    text-decoration: none;
+}
+
+.titulo-producto-tarjeta {
+    padding-top: 7px;
+    font-size: 12px;
+}
+
+.linea-separacion-dorada {
+    border-top: 2px solid #bca624;
+}
+
+.texto-footer-ofertas {
+    padding-right: 20px;
+}
+
+.caja-gris{
+    background-color: #3f4738;
+    padding: 30px;
+    border-radius: 20px;
+    margin-top: 10px;
+}
+
+.caja-peque {
+    background-color: #3f4738; 
+    padding: 20px;
+    border-radius: 30px;
+    height: 100%; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+}
+.cuadrado-grande{
+    display: flex;
+    flex-direction: column; 
+}
+
+.contenedor-boton{
+    margin-top: auto;              
+}
+
+.ajuste-letras-bloque{
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.ajuste-letras-bloque-der{
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.fuente-palabras-slim{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: lighter;
+    color: white;
+}
+
+.enlaces-footer{
+    margin-bottom: 10px;
+}
+
+.footer-estilo{
+    background-color: #4c5844;
+    border-top: 3px solid #bca624; 
+    padding-top: 20px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.boton-footer{
+    border-radius: 1px;
+    padding: 1px 15px; 
+    margin-bottom: 4px;
+}
+
+.columna-der-footer{
+    text-align: right;
+}
+
+.logoContactoCaja{
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+  padding: 2%;
+}
+
+.logoContactoImagen{
+    height: 150px;
+    
+}
+
+.estiloForm{
+    width: 90vw;
+    max-width: 1000px;
+    height: 80%;   
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10%;
+
+    background-color: #3f4738;
+    border: 3px solid #968732 ;
+    padding: 4%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    
+}
+.caja-registro{
+    background-color: #e5e5e5;
+    border: 5px solid #000000;
+    margin-top: 40px;
+}
+
+.caja-reg-inicio-peq{
+    background-color: #3f4738; 
+    padding: 5px; 
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+.boton-reini{
+    border: 2px solid #000000;
+    font-weight: bold;
+    border-radius: 5px;
+    background-color: #ffffff;
+}
+
+.boton-reini:hover{
+    background-color: #303030;
+    color: #ffffff;
+}
+.carrito-estilo{
+    width: 25px; 
+    margin-right: 5px;
+}
+.boton-colores-inicio{
+    background-color: #007bff;
+    border: 3px solid #015dbe; 
+    font-weight: bold;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.boton-contacto{
+    padding-left: 100px;
+    padding-right: 100px;
+    display: contents;
+    border: 3px solid black;
+}
+
+.imagen-ajustada{
+  max-width: 100%;
+  height: auto;
+  object-fit: contain; 
+}
+
+.click-efecto{
+    color: #bca624;
+    cursor: pointer;
+}
+.marcar-efecto{
+    color: #bca624; 
+}
+.marcar-efecto:hover{
+    color: rgb(245, 229, 141)
+}
+
+.sidebaradmin{
+    width: 250px;
+    height: 100vh;
+    position:fixed;
+    top: 0;
+    left: 0;
+    border-right: 1px ;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.contenidoadminhome{
+    margin-left: 250px;
+    min-height: 100vh;
+}
+
+.nav-admin{
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    display: block;
+}
+
+.navadministrador:hover, 
+    .nav-linkadmin.active {
+      color: #0d6efd;
+      background-color: #e2e6ea;
+      border-radius: 4px;
+    }
+
+    .admin-cuerpo {
+    background-color: #dddddd;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-lateral {
+    background-color: #e0e0e0;
+    border-right: 1px solid #cccccc;
+    border-bottom: 1px solid #cccccc;
+}
+
+.admin-contenedor-logo {
+    color: #333333;
+    border-bottom: 2px solid #cccccc;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.admin-img-logo {
+    max-width: 30%;
+    height: auto;
+    display: block;
+    margin: auto;
+}
+
+.admin-lista-nav {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+}
+
+.admin-enlace-nav {
+    color: #333333;
+    white-space: nowrap;
+    padding-left: 0;
+}
+
+.admin-contenido-principal {
+    background-color: #f2f2f2;
+    min-height: 100vh;
+}
+
+.admin-titulo-pagina {
+    color: #333333;
+    margin: 0;
+}
+
+.admin-btn-nuevo {
+    background-color: #999999;
+    color: #ffffff;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.admin-btn-nuevo:hover {
+    background-color: #777777;
+    color: #ffffff;
+}
+
+.admin-caja-tabla {
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    overflow-x: auto;
+}
+
+.admin-ancho-tabla {
+    min-width: 600px;
+}
+
+.admin-encabezado-tabla {
+    border-bottom: 2px solid #999999;
+    color: #333333;
+    font-weight: bold;
+}
+
+.admin-fondo-crear {
+    background-color: #f2f2f2;
+}
+
+.admin-caja-formulario {
+    background-color: #fdfdfd;
+    border: 1px solid #cccccc;
+    max-width: 700px;
+}
+
+.admin-titulo-formulario {
+    background-color: #d8d8d8;
+    color: #2b2b2b;
+}
+
+.admin-etiqueta-form {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #555;
+}
+
+.admin-btn-registrar {
+    background-color: transparent;
+    border: 1px solid #000;
+    color: #000;
+    font-weight: bold;
+    border-radius: 0;
+    min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+.admin-btn-registrar:hover {
+    background-color: #000;
+    color: #ffffff;
+}
+
+.imagen-nosotros{
+    height: 300PX;
+    border-radius: 100%;
+}
+
+
+.item-faq{
+    border: none;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 5px;
+}
+
+.accordion-button{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: bold;
+    background-color: #eff6ee;
+    color: #3f4738;
+    border-left: 5px solid #968732;
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed){
+    background-color: #3f4738;
+    color: #ffffff;
+    border-left: 5px solid #bca624;
+}
+
+.accordion-button:not(.collapsed) .letra-pregunta{
+    color: #bca624;
+}
+
+.accordion-button:focus{
+    box-shadow: none;
+    border-color: #968732;
+}
+
+.accordion-button::after{
+    filter: invert(38%) sepia(15%) saturate(700%) hue-rotate(40deg);
+}
+
+.letra-pregunta{
+    color: #968732;
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.letra-respuesta{
+    color: #4c5844;
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.accordion-body{
+    background-color: #ffffff;
+    color: #3f4738;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.logo-inicio-sesion {
+    max-width: 20%;
+    height: auto;
+    display: block;
+    margin: auto;
+}
+
+.cabeza-formulario-gris {
+    background-color: #ccc;
+    margin-bottom: 20px;
+    padding: 10px;
+}
