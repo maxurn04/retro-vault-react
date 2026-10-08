@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
 
 const Carrito = () => {
     const { carrito, cambiarCantidad, eliminarDelCarrito, totalVenta } = useContext(ContextoCarrito);
+    const navigate = useNavigate();
 
     return (
         <main>
@@ -57,7 +58,11 @@ const Carrito = () => {
                             
                             <hr style={{ borderColor: '#bca624' }} />
                             
-                            <button className="btn btn-warning w-100 fuente-palabras mt-3" style={{ fontWeight: 'bold', padding: '15px', borderRadius: '10px' }}>
+                            <button 
+                                onClick={() => navigate('/pagar')}
+                                disabled={carrito.length === 0}
+                                className="btn btn-warning w-100 fuente-palabras mt-3" 
+                                style={{ fontWeight: 'bold', padding: '15px', borderRadius: '10px' }}>
                                 Proceder al Pago
                             </button>
                             <Link to="/productos" className="btn btn-outline-light w-100 fuente-palabras mt-3">

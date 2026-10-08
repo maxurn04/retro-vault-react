@@ -42,6 +42,10 @@ export const ProveedorCarrito = ({ children }) => {
         setCarrito((prev) => prev.filter(item => item.id !== id));
     };
 
+    const vaciarCarrito = () => {
+        setCarrito([]);
+    };
+
     const cantidadTotal = carrito.reduce((acc, item) => acc + item.cantidad, 0);
     const totalVenta = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 

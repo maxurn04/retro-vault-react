@@ -16,16 +16,18 @@ import DetalleProducto from './views/DetalleProducto';
 
 import Carrito from './views/Carrito';
 import { ProveedorCarrito } from './contexto/ContextoCarrito';
+import { ProveedorUsuario } from './contexto/ContextoUsuario';
+import Categorias from './views/Categorias';
+import Ofertas from './views/Ofertas';
 
 import './App.css';
 
 const App = () => {
   return (
-    <ProveedorCarrito>
-    <Router>
-
-      <Navbar />
-      
+    <ProveedorUsuario>
+      <ProveedorCarrito>
+        <Router>
+          <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/inicio" element={<Inicio />} />
@@ -38,11 +40,14 @@ const App = () => {
         <Route path="/productos-cons-jueg" element={<ProductosConsolas />} />
         <Route path="/detalleprod/:id" element={<DetalleProducto />} />
         <Route path="/carrito" element={<Carrito />} />
+        <Route path="/categorias" element={<Categorias />} />
+        <Route path="/ofertas" element={<Ofertas />} />
       </Routes>
 
       <Footer />
     </Router>
-    </ProveedorCarrito>
+      </ProveedorCarrito>
+    </ProveedorUsuario>
   );
 };
 

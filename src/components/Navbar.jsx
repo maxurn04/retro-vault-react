@@ -17,25 +17,28 @@ const Navbar = () => {
                 </button>
                 
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul className="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                    <ul className="navbar-nav mx-auto mb-2 mb-lg-0 align-items-center">
                         <li className="nav-item me-3">
                             <Link className="nav-link fuente-palabras text-white" to="/">Home</Link>
                         </li>
                         <li className="nav-item me-3">
-                            <Link className="nav-link fuente-palabras text-white" to="/productos">Productos</Link>
+                            <Link className="nav-link fuente-palabras text-white" to="/categorias">Categorías</Link>
+                        </li>
+                        <li className="nav-item me-3">
+                            <Link className="nav-link fuente-palabras text-white" to="/ofertas">Ofertas</Link>
                         </li>
                         <li className="nav-item me-3">
                             <Link className="nav-link fuente-palabras text-white" to="/nosotros">Nosotros</Link>
                         </li>
                         <li className="nav-item me-3">
-                            <Link className="nav-link fuente-palabras text-white" to="/blogs">Blogs</Link>
+                            <Link className="nav-link fuente-palabras text-white" to="/blog">Blogs</Link>
                         </li>
                         <li className="nav-item me-4">
                             <Link className="nav-link fuente-palabras text-white" to="/contacto">Contacto</Link>
                         </li>
                     </ul>
 
-                    <div className="align-items-center">
+                    <div className="d-flex align-items-center justify-content-center mt-3 mt-lg-0">
                         <Link to="/carrito" className="btn d-flex align-items-center">
                             <img src="/img/carrito.svg" alt="Icono Carro" className="img-fluid carrito-estilo me-2" />
                             <span className="fuente-palabras" style={{color: 'white'}}>CARRO</span>
