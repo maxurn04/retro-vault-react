@@ -44,6 +44,7 @@ export const ProveedorCarrito = ({ children }) => {
 
     const vaciarCarrito = () => {
         setCarrito([]);
+        localStorage.setItem('carrito', JSON.stringify([]));
     };
 
     const cantidadTotal = carrito.reduce((acc, item) => acc + item.cantidad, 0);
@@ -55,6 +56,7 @@ export const ProveedorCarrito = ({ children }) => {
             agregarAlCarrito,
             cambiarCantidad,
             eliminarDelCarrito,
+            vaciarCarrito,
             cantidadTotal,
             totalVenta
         }}>

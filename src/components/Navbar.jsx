@@ -31,7 +31,7 @@ const Navbar = () => {
                             <Link className="nav-link fuente-palabras text-white" to="/nosotros">Nosotros</Link>
                         </li>
                         <li className="nav-item me-3">
-                            <Link className="nav-link fuente-palabras text-white" to="/blog">Blogs</Link>
+                            <Link className="nav-link fuente-palabras text-white" to="/blogs">Blogs</Link>
                         </li>
                         <li className="nav-item me-4">
                             <Link className="nav-link fuente-palabras text-white" to="/contacto">Contacto</Link>

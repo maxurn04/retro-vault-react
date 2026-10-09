@@ -59,7 +59,7 @@ const Carrito = () => {
                             <hr style={{ borderColor: '#bca624' }} />
                             
                             <button 
-                                onClick={() => navigate('/pagar')}
+                                onClick={() => navigate('/compra')}
                                 disabled={carrito.length === 0}
                                 className="btn btn-warning w-100 fuente-palabras mt-3" 
                                 style={{ fontWeight: 'bold', padding: '15px', borderRadius: '10px' }}>

@@ -19,6 +19,9 @@ import { ProveedorCarrito } from './contexto/ContextoCarrito';
 import { ProveedorUsuario } from './contexto/ContextoUsuario';
 import Categorias from './views/Categorias';
 import Ofertas from './views/Ofertas';
+import Comprar from './views/compra';
+import PagoExito from './views/pagoExito';
+import PagoMalo from './views/PagoMalo';
 
 import './App.css';
 
@@ -42,6 +45,9 @@ const App = () => {
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/categorias" element={<Categorias />} />
         <Route path="/ofertas" element={<Ofertas />} />
+        <Route path="/compra" element={<Comprar />} />
+        <Route path="/pago-exito" element={<PagoExito />} />
+        <Route path="/pago-malo" element={<PagoMalo />} />
       </Routes>
 
       <Footer />
