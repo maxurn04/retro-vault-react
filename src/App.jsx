@@ -23,6 +23,15 @@ import Comprar from './views/compra';
 import PagoExito from './views/pagoExito';
 import PagoMalo from './views/PagoMalo';
 
+import AdminLayout from './components/AdminLayout';
+import InicioAdmin from './views/admin/inicioadmin';
+import MostrarProductos from './views/admin/mostrarproductos';
+import CrearProd from './views/admin/crearprod';
+import EditarProd from './views/admin/editarprod';
+import CrearUsuario from './views/admin/crearusuario';
+import EditarUsuario from './views/admin/editarusuario';
+import MostrarUsuarios from './views/admin/mostrarusuario';
+
 import './App.css';
 
 const App = () => {
@@ -48,6 +57,16 @@ const App = () => {
         <Route path="/compra" element={<Comprar />} />
         <Route path="/pago-exito" element={<PagoExito />} />
         <Route path="/pago-malo" element={<PagoMalo />} />
+
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<InicioAdmin />} />
+          <Route path="mostrarproductos" element={<MostrarProductos />} />
+          <Route path="crearprod" element={<CrearProd />} />
+          <Route path="editarprod/:id" element={<EditarProd />} />
+          <Route path="crearusuario" element={<CrearUsuario />} />
+          <Route path="editarusuario/:indice" element={<EditarUsuario />} />
+          <Route path="mostrarusuario" element={<MostrarUsuarios />} />
+          </Route>
       </Routes>
 
       <Footer />
