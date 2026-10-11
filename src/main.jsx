@@ -5,6 +5,7 @@ import App from './App.jsx'
 // 1. Primero Bootstrap (la estructura base)
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // 2. Luego TUS estilos (para que manden y sobreescriban a Bootstrap)
 import './App.css'
