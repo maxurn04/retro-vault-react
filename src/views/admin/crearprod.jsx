@@ -4,6 +4,7 @@ import { obtenerCatalogo, guardarCatalogo, obtenerCategorias } from '../../data/
 
 const CrearProd = () => {
     const navigate = useNavigate();
+    const [aviso, setAviso] = useState(null);
     const categorias = obtenerCategorias();
     const [form, setForm] = useState({
         nombre: '', codigo: '', precio: '', stock: '', stockCritico: '', desc: '', categoria: '', img: ''
@@ -29,8 +30,8 @@ const CrearProd = () => {
         });
 
         guardarCatalogo(catalogo);
-        alert('Producto creado.');
-        navigate('/admin/mostrarproductos');
+        setAviso({ tipo: 'success', texto: 'Producto creado.' });
+        setTimeout(() => navigate('/admin/mostrarproductos'), 1500);
     };
 
     return (
@@ -39,7 +40,7 @@ const CrearProd = () => {
                 <div className="mb-4 p-2 text-center text-uppercase caja-gris fuente-palabras admin-titulo-formulario">
                     Crear nuevo producto
                 </div>
-
+                {aviso && <div className={`alert alert-${aviso.tipo} text-center`} role="alert">{aviso.texto}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label className="form-label text-uppercase admin-etiqueta-form">Nombre del producto</label>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { datosUbicacion } from '../Registro';
 
 const EditarUsuario = () => {
@@ -10,13 +10,15 @@ const EditarUsuario = () => {
     });
     const [indiceRegion, setIndiceRegion] = useState('');
     const [comuna, setComuna] = useState('');
+    const [aviso, setAviso] = useState(null);
+    const [noEncontrado, setNoEncontrado] = useState(false);
+    const mostrarError = (texto) => setAviso({ tipo: 'danger', texto });
 
     useEffect(() => {
         const usuarios = JSON.parse(localStorage.getItem('lista_usuarios')) || [];
         const user = usuarios[indice];
         if (!user) {
-            alert('Usuario no encontrado.');
-            navigate('/admin/mostrarusuario');
+            setNoEncontrado(true);
             return;
         }
         setForm({
@@ -47,33 +49,33 @@ const EditarUsuario = () => {
         const direccion = form.direccion.trim();
 
         if (run.length < 7 || run.length > 9) {
-            alert('El RUN debe tener entre 7 y 9 caracteres, sin puntos ni guión.');
+            mostrarError('El RUN debe tener entre 7 y 9 caracteres, sin puntos ni guión.');
             return;
         }
         if (nombre.length > 50) {
-            alert('El nombre no puede superar los 50 caracteres.');
+            mostrarError('El nombre no puede superar los 50 caracteres.');
             return;
         }
         if (apellidos.length > 100) {
-            alert('Los apellidos no pueden superar los 100 caracteres.');
+            mostrarError('Los apellidos no pueden superar los 100 caracteres.');
             return;
         }
         if (direccion.length > 300) {
-            alert('La dirección no puede superar los 300 caracteres.');
+            mostrarError('La dirección no puede superar los 300 caracteres.');
             return;
         }
         if (!correo.endsWith('@duoc.cl') && !correo.endsWith('@profesor.duoc.cl') && !correo.endsWith('@gmail.com')) {
-            alert('Solo se permiten correos @duoc.cl, @profesor.duoc.cl o @gmail.com.');
+            mostrarError('Solo se permiten correos @duoc.cl, @profesor.duoc.cl o @gmail.com.');
             return;
         }
         if (passw.length < 4 || passw.length > 10) {
-            alert('La contraseña debe tener entre 4 y 10 caracteres.');
+            mostrarError('La contraseña debe tener entre 4 y 10 caracteres.');
             return;
         }
 
         const usuarios = JSON.parse(localStorage.getItem('lista_usuarios')) || [];
         if (usuarios.some((u, i) => i !== Number(indice) && u.correo.toLowerCase() === correo)) {
-            alert('Ya existe un usuario registrado con este correo.');
+            mostrarError('Ya existe un usuario registrado con este correo.');
             return;
         }
 
@@ -92,10 +94,19 @@ const EditarUsuario = () => {
         };
 
         localStorage.setItem('lista_usuarios', JSON.stringify(usuarios));
-        alert('Usuario actualizado con exito');
-        navigate('/admin/mostrarusuario');
+        setAviso({ tipo: 'success', texto: 'Usuario actualizado con éxito.' });
+        setTimeout(() => navigate('/admin/mostrarusuario'), 1500);
     };
 
+    if (noEncontrado) {
+        return (
+            <main className="col-12 col-md-9 col-xl-10 p-4">
+                <div className="alert alert-danger text-center" role="alert">
+                    Usuario no encontrado. <Link to="/admin/mostrarusuario" className="alert-link">Volver a Usuarios</Link>
+                </div>
+            </main>
+        );
+    }
     return (
         <main className="col-12 col-md-9 col-xl-10 p-0" style={{ backgroundColor: '#f2f2f2', minHeight: '100vh' }}>
             <div className="p-4 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#e0e0e0', borderBottom: '1px solid #cccccc' }}>
@@ -103,6 +114,7 @@ const EditarUsuario = () => {
             </div>
 
             <div className="p-4">
+                {aviso && <div className={`alert alert-${aviso.tipo} text-center`} role="alert" style={{ maxWidth: '700px' }}>{aviso.texto}</div>}
                 <form className="p-4" style={{ backgroundColor: '#ffffff', border: '1px solid #cccccc', borderRadius: '8px', maxWidth: '700px' }} onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label htmlFor="r-run" className="form-label">RUN</label>

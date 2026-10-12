@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { obtenerCatalogo, guardarCatalogo, obtenerCategorias } from '../../data/catalogoAdmin';
 
 const EditarProd = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const categorias = obtenerCategorias();
+    const [aviso, setAviso] = useState(null);
+    const [noEncontrado, setNoEncontrado] = useState(false);
+    const mostrarError = (texto) => setAviso({ tipo: 'danger', texto });    
     const [form, setForm] = useState({
         nombre: '', codigo: '', precio: '', stock: '', stockCritico: '', desc: '', categoria: '', img: ''
     });
@@ -13,8 +16,7 @@ const EditarProd = () => {
     useEffect(() => {
         const producto = obtenerCatalogo().find((p) => p.id === parseInt(id));
         if (!producto) {
-            alert('Producto no encontrado.');
-            navigate('/admin/mostrarproductos');
+            setNoEncontrado(true);
             return;
         }
         setForm({
@@ -44,27 +46,27 @@ const EditarProd = () => {
         const img = form.img.trim() === '' ? '/img/tiendaplaceholde.png' : form.img.trim();
 
         if (codigo.length < 3) {
-            alert('Error: El código debe tener un mínimo de 3 caracteres.');
+            mostrarError('Error: El código debe tener un mínimo de 3 caracteres.');
             return;
         }
         if (nombre === '' || nombre.length > 100) {
-            alert('Error: El nombre es obligatorio y máximo 100 caracteres.');
+            mostrarError('Error: El nombre es obligatorio y máximo 100 caracteres.');
             return;
         }
         if (desc.length > 500) {
-            alert('Error: La descripción máximo 500 caracteres.');
+            mostrarError('Error: La descripción máximo 500 caracteres.');
             return;
         }
         if (isNaN(precio) || precio < 0) {
-            alert('Error: El precio debe ser mayor o igual a 0.');
+            mostrarError('Error: El precio debe ser mayor o igual a 0.');
             return;
         }
         if (isNaN(stock) || stock < 0 || !Number.isInteger(stock)) {
-            alert('Error: El stock debe ser un número entero y mayor o igual a 0.');
+            mostrarError('Error: El stock debe ser un número entero y mayor o igual a 0.');
             return;
         }
         if (stockCriticoInput !== '' && (isNaN(stockCritico) || stockCritico < 0 || !Number.isInteger(stockCritico))) {
-            alert('Error: El stock crítico debe ser un número entero válido.');
+            mostrarError('Error: El stock crítico debe ser un número entero válido.');
             return;
         }
 
@@ -75,17 +77,25 @@ const EditarProd = () => {
         );
 
         guardarCatalogo(catalogo);
-        alert('¡Producto actualizado con éxito!');
-        navigate('/admin/mostrarproductos');
+        setAviso({ tipo: 'success', texto: '¡Producto actualizado con éxito!' });
+        setTimeout(() => navigate('/admin/mostrarproductos'), 1500);
     };
-
+    if (noEncontrado) {
+        return (
+            <main className="col-12 col-md-9 col-xl-10 p-4 p-md-5 admin-fondo-crear">
+                <div className="alert alert-danger text-center" role="alert">
+                    Producto no encontrado. <Link to="/admin/mostrarproductos" className="alert-link">Volver a Productos</Link>
+                </div>
+            </main>
+        );
+    }
     return (
         <main className="col-12 col-md-9 col-xl-10 p-4 p-md-5 admin-fondo-crear">
             <div className="p-4 p-md-5 mx-auto admin-caja-formulario">
                 <div className="mb-4 p-2 text-center text-uppercase caja-gris fuente-palabras admin-titulo-formulario">
                     Editando producto
                 </div>
-
+                {aviso && <div className={`alert alert-${aviso.tipo} text-center`} role="alert">{aviso.texto}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label className="form-label text-uppercase admin-etiqueta-form">Nombre del producto</label>

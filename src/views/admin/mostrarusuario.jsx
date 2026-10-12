@@ -9,6 +9,7 @@ const MostrarUsuarios = () => {
     const [usuarios, setUsuarios] = useState(() => JSON.parse(localStorage.getItem('lista_usuarios')) || []);
     const [form, setForm] = useState(vacio);
     const [indice, setIndice] = useState('');
+    const [aviso, setAviso] = useState(null)
 
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -23,7 +24,7 @@ const MostrarUsuarios = () => {
         lista[indice] = { ...lista[indice], ...form };
         localStorage.setItem('lista_usuarios', JSON.stringify(lista));
         setUsuarios(lista);
-        alert('Usuario editado');
+        setAviso({ tipo: 'success', texto: 'Usuario editado.' });
     };
 
     const borrarUsuario = () => {
@@ -33,7 +34,7 @@ const MostrarUsuarios = () => {
         setUsuarios(lista);
         setForm(vacio);
         setIndice('');
-        alert('Usuario borrado');
+        setAviso({ tipo: 'success', texto: 'Usuario borrado.' });
     };
 
     return (
@@ -45,6 +46,7 @@ const MostrarUsuarios = () => {
             <div className="p-4 admin-caja-tabla">
                 <div className="admin-ancho-tabla">
                     <div className="p-4">
+                        {aviso && <div className={`alert alert-${aviso.tipo} text-center mx-auto`} role="alert" style={{ maxWidth: '700px' }}>{aviso.texto}</div>}
                         <form className="container p-4" style={{ backgroundColor: '#ffffff', border: '1px solid #cccccc', borderRadius: '8px', maxWidth: '700px' }}>
                             <div className="row">
                                 <div className="col-3">

@@ -21,18 +21,27 @@ const DetalleBoleta = ({ editable = false }) => {
     const navigate = useNavigate();
     const [boleta, setBoleta] = useState(null);
     const [guardada, setGuardada] = useState(false);
+    const [noEncontrado, setNoEncontrado] = useState(false);
 
     useEffect(() => {
         const boletas = JSON.parse(localStorage.getItem('boletas')) || [];
         const encontrada = boletas.find((b) => String(b.numero) === numero);
         if (!encontrada) {
-            alert('Boleta no encontrada.');
-            navigate('/admin/boletas');
+            setNoEncontrado(true);
             return;
         }
         setBoleta(encontrada);
     }, [numero, navigate]);
-
+    
+    if (noEncontrado) {
+        return (
+            <main className="col-12 col-md-9 col-xl-10 p-4 p-md-5 admin-fondo-crear">
+                <div className="alert alert-danger text-center" role="alert">
+                    Boleta no encontrada. <Link to="/admin/boletas" className="alert-link">Volver a Boletas</Link>
+                </div>
+            </main>
+        );
+    }
     if (!boleta) return null;
 
     const cambiarGeneral = (e) => setBoleta({ ...boleta, [e.target.name]: e.target.value });
