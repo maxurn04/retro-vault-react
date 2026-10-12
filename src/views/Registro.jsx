@@ -28,6 +28,17 @@ const Registro = () => {
     });
     const [indiceRegion, setIndiceRegion] = useState('');
     const [comunaSeleccionada, setComunaSeleccionada] = useState('');
+    const [popup, setPopup] = useState(null);
+
+    const mostrarPopup = (titulo, mensaje, accionAlCerrar = null) => {
+        setPopup({ titulo, mensaje, alCerrar: accionAlCerrar });
+    };
+
+    const cerrarPopup = () => {
+        const accion = popup?.alCerrar;
+        setPopup(null);
+        if (accion) accion();
+    };
 
     const handleChange = (e) => {
         setFormulario({ ...formulario, [e.target.name]: e.target.value });
@@ -41,35 +52,35 @@ const Registro = () => {
         const confCorreoLower = confirmarCorreo.trim().toLowerCase();
 
         if (runUpper.length < 7 || runUpper.length > 9) {
-            alert("El RUN debe tener entre 7 y 9 caracteres, sin puntos ni guión.");
+            mostrarPopup("Aviso", "El RUN debe tener entre 7 y 9 caracteres, sin puntos ni guión.");
             return;
         }
         if (nombre.trim().length > 50) {
-            alert("El nombre no puede superar los 50 caracteres.");
+            mostrarPopup("Aviso", "El nombre no puede superar los 50 caracteres.");
             return;
         }
         if (apellidos.trim().length > 100) {
-            alert("Los apellidos no pueden superar los 100 caracteres.");
+            mostrarPopup("Aviso", "Los apellidos no pueden superar los 100 caracteres.");
             return;
         }
         if (direccion.trim().length > 300) {
-            alert("La dirección no puede superar los 300 caracteres.");
+            mostrarPopup("Aviso", "La dirección no puede superar los 300 caracteres.");
             return;
         }
         if (!correoLower.endsWith("@duoc.cl") && !correoLower.endsWith("@profesor.duoc.cl") && !correoLower.endsWith("@gmail.com")) {
-            alert("Solo se permiten correos @duoc.cl, @profesor.duoc.cl o @gmail.com.");
+            mostrarPopup("Aviso", "Solo se permiten correos @duoc.cl, @profesor.duoc.cl o @gmail.com.");
             return;
         }
         if (correoLower !== confCorreoLower) {
-            alert("Los correos no coinciden.");
+            mostrarPopup("Error", "Los correos no coinciden.");
             return;
         }
         if (passw.trim().length < 4 || passw.trim().length > 10) {
-            alert("La contraseña debe tener entre 4 y 10 caracteres.");
+            mostrarPopup("Error", "La contraseña debe tener entre 4 y 10 caracteres.");
             return;
         }
         if (passw.trim() !== confirmarPassw.trim()) {
-            alert("Las contraseñas no coinciden.");
+            mostrarPopup("Error", "Las contraseñas no coinciden.");
             return;
         }
 
@@ -77,7 +88,7 @@ const Registro = () => {
         const usuarioExiste = usuarios.find(user => user.correo.toLowerCase() === correoLower);
 
         if (usuarioExiste) {
-            alert("Ya existe un usuario registrado con este correo.");
+            mostrarPopup("Error", "Ya existe un usuario registrado con este correo.");
             return;
         }
 
@@ -91,8 +102,7 @@ const Registro = () => {
 
         usuarios.push(nuevoUser);
         localStorage.setItem('lista_usuarios', JSON.stringify(usuarios));
-        alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
-        navigate('/inicio');
+        mostrarPopup("¡Registro exitoso!", "¡Registro exitoso! Ahora puedes iniciar sesión.", () => navigate('/inicio'));
     };
 
     return (
@@ -179,7 +189,7 @@ const Registro = () => {
                                     </div>
                                 </div>
 
-                                <div className="text-center mt-3">
+                                <div className="text-center mt-3 boton-reini">
                                     <button type="submit" className="btn boton-reini px-5 py-2">REGISTRAR</button>
                                 </div>
                             </form>
@@ -187,6 +197,48 @@ const Registro = () => {
                     </div>
                 </div>
             </div>
+
+            {popup && (
+                <div 
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999
+                    }}
+                >
+                    <div 
+                        className="caja-gris p-4 text-center text-white" 
+                        style={{ 
+                            maxWidth: '420px', 
+                            width: '90%', 
+                            borderRadius: '10px', 
+                            border: '2px solid #bca624',
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+                        }}
+                    >
+                        <h4 className="fuente-palabras mb-3" style={{ color: '#bca624' }}>
+                            {popup.titulo}
+                        </h4>
+                        <p className="fuente-palabras-slim mb-4" style={{ fontSize: '1.05rem' }}>
+                            {popup.mensaje}
+                        </p>
+                        <button 
+                            type="button" 
+                            className="btn boton-reini px-4 py-2" 
+                            onClick={cerrarPopup}
+                        >
+                            Aceptar
+                        </button>
+                    </div>
+                </div>
+            )}
         </main>
     );
 };

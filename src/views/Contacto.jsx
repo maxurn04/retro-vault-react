@@ -88,8 +88,8 @@ const Contacto = () => {
                         <div className="invalid-feedback d-block text-danger">{errorMensaje}</div>
                     </div>
                     
-                    <div className="text-center" style={{ border: '4px solid #968732', padding: '2%', borderRadius: '10px', backgroundColor: '#968732' }}>
-                        <button type="submit" className="btn btn-primary boton-contacto">Enviar Mensaje</button>
+                    <div className="text-center">
+                        <button type="submit" className="btn p-3" style={{ backgroundColor: '#968732', border: 'none' }}><h6>Enviar Mensaje</h6></button>
                     </div>
                 </form>
             </div>
