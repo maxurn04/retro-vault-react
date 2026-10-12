@@ -30,7 +30,7 @@ const Inicio = () => {
             const usuarioAdmin = { nombre: "Administrador", correo: "admin@gmail.com", tipo: "Administrador" };
             iniciarSesion(usuarioAdmin);
             alert("¡Bienvenido, Administrador!");
-            navigate('/');
+            navigate('/admin');
             return; 
         }
 
