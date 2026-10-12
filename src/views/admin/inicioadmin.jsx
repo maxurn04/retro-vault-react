@@ -16,11 +16,12 @@ const InicioAdmin = () => {
     const catalogo = obtenerCatalogo();
     const totalProductos = catalogo.length;
     const inventarioTotal = catalogo.reduce((suma, p) => suma + (Number(p.stock) || 0), 0);
+    const totalUsuarios = (JSON.parse(localStorage.getItem('lista_usuarios')) || []).length;
 
     const resumen = [
         { titulo: 'Compras', valor: '1,234', pie: 'Probabilidad de aumento:', dato: '20%', clase: 'bg-primary', icono: 'bi-cart4' },
         { titulo: 'Productos', valor: totalProductos, pie: 'Inventario actual:', dato: inventarioTotal, clase: 'bg-success', icono: 'bi-box-seam' },
-        { titulo: 'Usuarios', valor: '890', pie: 'Nuevos usuarios este mes:', dato: '120', clase: 'bg-warning', icono: 'bi-people-fill' }
+        { titulo: 'Usuarios', valor: totalUsuarios, pie: 'Nuevos usuarios este mes:', dato: '120', clase: 'bg-warning', icono: 'bi-people-fill' }
     ];
 
     return (

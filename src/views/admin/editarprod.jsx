@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { obtenerCatalogo, guardarCatalogo } from '../../data/catalogoAdmin';
+import { obtenerCatalogo, guardarCatalogo, obtenerCategorias } from '../../data/catalogoAdmin';
 
 const EditarProd = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const categorias = obtenerCategorias();
     const [form, setForm] = useState({
         nombre: '', codigo: '', precio: '', stock: '', stockCritico: '', desc: '', categoria: '', img: ''
     });
@@ -121,9 +122,7 @@ const EditarProd = () => {
                             <label className="form-label text-uppercase admin-etiqueta-form">- Seleccione la categoría -</label>
                             <select name="categoria" className="form-select rounded-0 border-dark" required value={form.categoria} onChange={handleChange}>
                                 <option value="">Seleccione una categoría...</option>
-                                <option value="Consolas">Consolas</option>
-                                <option value="Juegos">Juegos</option>
-                                <option value="Accesorios">Accesorios</option>
+                                {categorias.map((cat) => (<option key={cat} value={cat}>{cat}</option>))}
                             </select>
                         </div>
                         <div className="col-12 col-md-6">

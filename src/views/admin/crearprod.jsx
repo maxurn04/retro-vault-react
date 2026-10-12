@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { obtenerCatalogo, guardarCatalogo } from '../../data/catalogoAdmin';
+import { obtenerCatalogo, guardarCatalogo, obtenerCategorias } from '../../data/catalogoAdmin';
 
 const CrearProd = () => {
     const navigate = useNavigate();
+    const categorias = obtenerCategorias();
     const [form, setForm] = useState({
         nombre: '', codigo: '', precio: '', stock: '', stockCritico: '', desc: '', categoria: '', img: ''
     });
