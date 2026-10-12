@@ -8,7 +8,10 @@ const MostrarProductos = () => {
         <main className="col-12 col-md-9 col-xl-10 p-4 admin-contenido-principal">
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
                 <h2 className="fuente-palabras mb-3 mb-md-0 admin-titulo-pagina">Gestión de Productos</h2>
-                <Link to="/admin/crearprod" className="btn admin-btn-nuevo">+ Nuevo Producto</Link>
+                <div className="d-flex gap-2">
+                    <Link to="/admin/productoscriticos" className="btn btn-danger fw-bold">Productos Críticos</Link>
+                    <Link to="/admin/crearprod" className="btn admin-btn-nuevo">+ Nuevo Producto</Link>
+                 </div>
             </div>
 
             <div className="p-4 admin-caja-tabla">
