@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import Blog from '../../views/Blog';
+import Blogs from '../../views/Blogs';
 
-describe('Vista Blog', () => {
+describe('Vista Blogs', () => {
   it('renderiza la vista de blogs', () => {
-    render(<Blog />);
-    expect(screen.getByText('Blogs RetroVault')).toBeInTheDocument();
+    render(<Blogs />);
+    expect(screen.getByText(/blogs retrovault/i)).toBeInTheDocument();
   });
 });

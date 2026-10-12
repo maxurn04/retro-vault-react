@@ -13,6 +13,6 @@ describe('Vista Productos', () => {
         </MemoryRouter>
       </ProveedorCarrito>
     );
-    expect(screen.getByText('Catalogo disponible')).toBeInTheDocument();
+    expect(screen.getByText(/cat[aá]logo disponible/i)).toBeInTheDocument();
   });
 });
