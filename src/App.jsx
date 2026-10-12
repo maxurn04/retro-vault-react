@@ -36,6 +36,7 @@ import DetalleBoleta from './views/admin/detalleboleta';
 import MostrarCategorias from './views/admin/mostrarcategorias';
 import CrearCategoria from './views/admin/crearcategoria';
 import EditarCategoria from './views/admin/editarcategoria';
+import Reportes from './views/admin/reportes';
 
 import './App.css';
 
@@ -77,6 +78,7 @@ const App = () => {
           <Route path="categorias" element={<MostrarCategorias />} />
           <Route path="categorias/nueva" element={<CrearCategoria />} />
           <Route path="categorias/editar/:nombre" element={<EditarCategoria />} />
+          <Route path="reportes" element={<Reportes />} />
           </Route>
       </Routes>
 
