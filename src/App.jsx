@@ -31,6 +31,8 @@ import EditarProd from './views/admin/editarprod';
 import CrearUsuario from './views/admin/crearusuario';
 import EditarUsuario from './views/admin/editarusuario';
 import MostrarUsuarios from './views/admin/mostrarusuario';
+import MostrarBoletas from './views/admin/mostrarboletas';
+import DetalleBoleta from './views/admin/detalleboleta';
 
 import './App.css';
 
@@ -66,6 +68,9 @@ const App = () => {
           <Route path="crearusuario" element={<CrearUsuario />} />
           <Route path="editarusuario/:indice" element={<EditarUsuario />} />
           <Route path="mostrarusuario" element={<MostrarUsuarios />} />
+          <Route path="boletas" element={<MostrarBoletas />} />
+          <Route path="boletas/:numero" element={<DetalleBoleta key="ver" />} />
+          <Route path="boletas/:numero/editar" element={<DetalleBoleta key="editar" editable />} />
           </Route>
       </Routes>
 

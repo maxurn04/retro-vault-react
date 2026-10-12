@@ -26,7 +26,7 @@ const AdminLayout = () => {
                                 <NavLink end to="/admin" className={clase}><i className="bi bi-house-door-fill"></i>Dashboard</NavLink>
                             </li>
                             <li className="nav-item">
-                                <NavLink to="/admin/ordenes" className={clase}><i className="bi bi-file-earmark"></i>Boletas</NavLink>
+                                <NavLink to="/admin/boletas" className={clase}><i className="bi bi-file-earmark"></i>Boletas</NavLink>
                             </li>
                             <li className="nav-item">
                                 <NavLink to="/admin/mostrarproductos" className={clase}><i className="bi bi-cart"></i>Productos</NavLink>

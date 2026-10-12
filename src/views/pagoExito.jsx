@@ -7,9 +7,30 @@ const PagoExito = () => {
     const { vaciarCarrito } = useContext(ContextoCarrito);
 
     useEffect(() => {
-        vaciarCarrito();
-        localStorage.setItem('carrito', JSON.stringify([]));
-    }, []);
+    vaciarCarrito();
+    localStorage.setItem('carrito', JSON.stringify([]));
+
+    if (!state) return;
+
+    const boletas = JSON.parse(localStorage.getItem('boletas')) || [];
+    if (boletas.some((b) => b.numero === state.numero)) return;
+
+    boletas.push({
+        numero: state.numero,
+        fecha: new Date().toLocaleString('es-CL'),
+        metodoPago: state.metodoPago,
+        cliente: state.cliente,
+        productos: state.productos.map((item) => ({
+            id: item.id,
+            nombre: item.nombre,
+            cantidad: item.cantidad,
+            precio: item.precio,
+            subtotal: item.precio * item.cantidad
+        })),
+        total: state.total
+    });
+    localStorage.setItem('boletas', JSON.stringify(boletas));
+}, []);
 
     const descargarBoleta = () => {
         window.print();
