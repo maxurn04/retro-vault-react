@@ -4,12 +4,23 @@ import { MemoryRouter } from 'react-router-dom';
 import Categorias from '../../views/Categorias';
 
 describe('Vista Categorias', () => {
-  it('renderiza el catalogo por categorias', () => {
+  it('renderiza la pagina', () => {
     render(
       <MemoryRouter>
         <Categorias />
       </MemoryRouter>
     );
     expect(screen.getByText('Nuestras Categorías')).toBeInTheDocument();
+  });
+
+  //para ver si cargan las categorias disponibles
+  it('renderiza las categorías disponibles', () => {
+    render(
+      <MemoryRouter>
+        <Categorias />
+      </MemoryRouter>
+    );
+    const titulos = screen.getAllByRole('heading');
+    expect(titulos.length).toBeGreaterThan(1);
   });
 });

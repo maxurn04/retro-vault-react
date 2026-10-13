@@ -9,6 +9,7 @@ const Compra = () => {
     const navigate = useNavigate();
 
     const [metodoPago, setMetodoPago] = useState('');
+    const [popup, setPopup] = useState(null);
     const [formulario, setFormulario] = useState({
         nombre: '', apellidos: '', correo: '', calle: '',
         departamento: '', region: '', comuna: '', indicaciones: ''
@@ -28,13 +29,23 @@ const Compra = () => {
         }
     }, [usuarioActivo]);
 
+    const mostrarPopup = (titulo, mensaje, accionAlCerrar = null) => {
+        setPopup({ titulo, mensaje, alCerrar: accionAlCerrar });
+    };
+
+    const cerrarPopup = () => {
+        const accion = popup?.alCerrar;
+        setPopup(null);
+        if (accion) accion();
+    };
+
     const handleChange = (e) => {
         setFormulario({ ...formulario, [e.target.name]: e.target.value });
     };
 
     const procesarPago = () => {
         if (!formulario.nombre.trim() || !formulario.apellidos.trim() || !formulario.correo.trim() || !formulario.calle.trim()) {
-            alert("Por favor completa los datos obligatorios del cliente y envío.");
+            mostrarPopup("Datos Incompletos", "Por favor completa los datos obligatorios del cliente y envío.");
             return;
         }
 
@@ -187,6 +198,48 @@ const Compra = () => {
                     </div>
                 </div>
             </div>
+
+            {popup && (
+                <div 
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999
+                    }}
+                >
+                    <div 
+                        className="caja-gris p-4 text-center text-white" 
+                        style={{ 
+                            maxWidth: '420px', 
+                            width: '90%', 
+                            borderRadius: '10px', 
+                            border: '2px solid #bca624',
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+                        }}
+                    >
+                        <h4 className="fuente-palabras mb-3" style={{ color: '#bca624' }}>
+                            {popup.titulo}
+                        </h4>
+                        <p className="fuente-palabras-slim mb-4" style={{ fontSize: '1.05rem' }}>
+                            {popup.mensaje}
+                        </p>
+                        <button 
+                            type="button" 
+                            className="btn boton-reini px-4 py-2" 
+                            onClick={cerrarPopup}
+                        >
+                            Aceptar
+                        </button>
+                    </div>
+                </div>
+            )}
         </main>
     );
 };
