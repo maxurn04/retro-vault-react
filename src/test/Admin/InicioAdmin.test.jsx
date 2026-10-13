@@ -25,9 +25,10 @@ describe('vista admin del dashboard', () => {
         expect(screen.getByText('2')).toBeInTheDocument();
     });
 
-    it('muestra el acceso a Boletas y no a Órdenes', () => {
-        render(<MemoryRouter><InicioAdmin /></MemoryRouter>);
-        expect(screen.getByText('Boletas')).toBeInTheDocument();
-        expect(screen.queryByText('Órdenes')).not.toBeInTheDocument();
+    it('muestra 0 en productos, inventario y usuarios cuando no hay datos guardados', () => {
+    localStorage.setItem('catalogo_retro', JSON.stringify([]));
+    localStorage.setItem('lista_usuarios', JSON.stringify([]));
+    render(<MemoryRouter><InicioAdmin /></MemoryRouter>);
+    expect(screen.getAllByText('0')).toHaveLength(3);
     });
 });
