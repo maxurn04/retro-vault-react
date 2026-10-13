@@ -1,5 +1,5 @@
 import { useState } from 'react';
-
+import { Link } from 'react-router-dom';
 const vacio = {
     run: '', nombre: '', apellidos: '', correo: '', contra: '',
     telefono: '', fechaNacimiento: '', direccion: '', region: '', comuna: ''
@@ -116,11 +116,17 @@ const MostrarUsuarios = () => {
                                     <button type="button" className="btn btn-dark col-6" onClick={guardarCambios}>Guardar Cambios</button>
                                 </div>
                                 <div className="col text-center">
-                                    <button type="button" className="btn btn-dark col-6" onClick={borrarUsuario}>Borrar Usuario</button>
-                                </div>
+                                <button type="button" className="btn btn-dark col-6" onClick={borrarUsuario}>Borrar Usuario</button>
                             </div>
-                        </form>
+                            {indice !== '' && (
+                                <div className="col text-center">
+                                    <Link to={`/admin/historial/${indice}`} className="btn btn-dark col-10">Historial de compras</Link>
+                                </div>
+                            )}
+                            </div>
+                            </form>
                     </div>
+                     
                     <br />
 
                     <div className="row mb-3 pb-2 fuente-palabras admin-encabezado-tabla">
