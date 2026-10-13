@@ -7,14 +7,26 @@ const DetalleProducto = () => {
     const { id } = useParams();
     const prod = productosData.find(item => item.id === parseInt(id));
     const [cantidad, setCantidad] = useState(1);
+    const [popup, setPopup] = useState(null);
     const { agregarAlCarrito } = useContext(ContextoCarrito);
 
     if (!prod) {
         return <h2 className="text-center text-white mt-5 fuente-palabras">Producto No Encontrado</h2>;
     }
 
+    const mostrarPopup = (titulo, mensaje, accionAlCerrar = null) => {
+        setPopup({ titulo, mensaje, alCerrar: accionAlCerrar });
+    };
+
+    const cerrarPopup = () => {
+        const accion = popup?.alCerrar;
+        setPopup(null);
+        if (accion) accion();
+    };
+
     const handleAgregar = () => {
         agregarAlCarrito(prod, cantidad);
+        mostrarPopup("Carrito", `¡${prod.nombre} añadido al carrito!`);
     };
 
     return (
@@ -76,7 +88,7 @@ const DetalleProducto = () => {
                             className="form-control text-center" 
                             value={cantidad} 
                             min="1" 
-                            onChange={(e) => setCantidad(parseInt(e.target.value))}
+                            onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
                             style={{ width: '80px', backgroundColor: '#3f4738', color: 'white', border: '1px solid #bca624' }} 
                         /> 
                         <h6 className="fuente-palabras-slim ms-auto mb-0">
@@ -92,6 +104,48 @@ const DetalleProducto = () => {
                     </button>
                 </div>
             </div>
+
+            {popup && (
+                <div 
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999
+                    }}
+                >
+                    <div 
+                        className="caja-gris p-4 text-center text-white" 
+                        style={{ 
+                            maxWidth: '420px', 
+                            width: '90%', 
+                            borderRadius: '10px', 
+                            border: '2px solid #bca624',
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+                        }}
+                    >
+                        <h4 className="fuente-palabras mb-3" style={{ color: '#bca624' }}>
+                            {popup.titulo}
+                        </h4>
+                        <p className="fuente-palabras-slim mb-4" style={{ fontSize: '1.05rem' }}>
+                            {popup.mensaje}
+                        </p>
+                        <button 
+                            type="button" 
+                            className="btn boton-reini px-4 py-2" 
+                            onClick={cerrarPopup}
+                        >
+                            Aceptar
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

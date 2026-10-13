@@ -22,7 +22,7 @@ export const ProveedorCarrito = ({ children }) => {
             }
             return [...prev, { ...producto, cantidad: cantidad }];
         });
-        alert(`¡Se añadieron ${cantidad} ${producto.nombre} a tu carrito!`);
+        //alert(`¡Se añadieron ${cantidad} ${producto.nombre} a tu carrito!`);
     };
 
     const cambiarCantidad = (id, modificador) => {

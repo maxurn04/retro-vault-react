@@ -1,9 +1,14 @@
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
 
 const Navbar = () => {
     const { cantidadTotal } = useContext(ContextoCarrito);
+    const location = useLocation();
+
+    if (location.pathname.startsWith('/admin')) { //para que no aparezca en el admin
+        return null;
+    }
 
     return (
         <nav className="navbar navbar-expand-lg navbar-estilo">
