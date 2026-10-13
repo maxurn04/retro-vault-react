@@ -1,6 +1,13 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 
 const Footer = () => {
+    const location = useLocation();
+
+    if (location.pathname.startsWith('/admin')) { //para que no aparezca en el admin (navbar)
+        return null;
+    }
+
     return (
         <footer className="footer-estilo">
             <div className="container">
