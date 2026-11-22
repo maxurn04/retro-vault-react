@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AuthService from '../services/AuthService';
 
 export const datosUbicacion = [
     { region: "Arica y Parinacota", comunas: ["Arica", "Camarones", "General Lagos", "Putre"] },
@@ -16,19 +17,29 @@ export const datosUbicacion = [
     { region: "Araucanía", comunas: ["Angol", "Carahue", "Cholchol", "Collipulli", "Cunco", "Curacautín", "Curarrehue", "Ercilla", "Freire", "Galvarino", "Gorbea", "Lautaro", "Loncoche", "Lonquimay", "Los Sauces", "Lumaco", "Melipeuco", "Nueva Imperial", "Padre las Casas", "Perquenco", "Pitrufquén", "Pucón", "Purén", "Renaico", "Saavedra", "Temuco", "Teodoro Schmidt", "Toltén", "Traiguén", "Victoria", "Vilcún", "Villarrica"] },
     { region: "Los Ríos", comunas: ["Corral", "Futrono", "La Unión", "Lago Ranco", "Lanco", "Los Lagos", "Mariquina", "Máfil", "Paillaco", "Panguipulli", "Río Bueno", "Valdivia"] },
     { region: "Los Lagos", comunas: ["Ancud", "Calbuco", "Castro", "Chaitén", "Chonchi", "Cochamó", "Curaco de Vélez", "Dalcahue", "Fresia", "Frutillar", "Futaleufú", "Hualaihué", "Llanquihue", "Los Muermos", "Maullín", "Osorno", "Palena", "Puerto Montt", "Puerto Octay", "Puerto Varas", "Puqueldón", "Purranque", "Puyehue", "Queilén", "Quellón", "Quemchi", "Quinchao", "Río Negro", "San Juan de la Costa", "San Pablo"] },
-    { region: "Aisén del Gral. Carlos Ibáñez del Campo", comunas: ["Aisén", "Chile Chico", "Cisnes", "Cochrane", "Coyhaique", "Guaitecas", "Lago Verde", "O’Higgins", "Río Ibáñez", "Tortel"] },
-    { region: "Magallanes y de la Antártica Chilena", comunas: ["Antártica", "Cabo de Hornos (Ex Navarino)", "Laguna Blanca", "Natales", "Porvenir", "Primavera", "Punta Arenas", "Río Verde", "San Gregorio", "Timaukel", "Torres del Paine"] }
+    { region: "Aysén", comunas: ["Aysén", "Chile Chico", "Cisnes", "Cochrane", "Coyhaique", "Guaitecas", "Lago Verde", "O’Higgins", "Río Ibáñez", "Tortel"] },
+    { region: "Magallanes", comunas: ["Antártica", "Cabo de Hornos", "Laguna Blanca", "Natales", "Porvenir", "Primavera", "Punta Arenas", "Río Verde", "San Gregorio", "Timaukel", "Torres del Paine"] }
 ];
 
 const Registro = () => {
-    const navigate = useNavigate();
     const [formulario, setFormulario] = useState({
-        run: '', nombre: '', apellidos: '', correo: '', confirmarCorreo: '',
-        passw: '', confirmarPassw: '', telefono: '', fecha: '', direccion: ''
+        run: '',
+        nombre: '',
+        apellidos: '',
+        correo: '',
+        password: '',
+        confirmarPassword: '',
+        telefono: '',
+        fechaNacimiento: '',
+        direccion: ''
     });
+
     const [indiceRegion, setIndiceRegion] = useState('');
     const [comunaSeleccionada, setComunaSeleccionada] = useState('');
+    const [cargando, setCargando] = useState(false);
     const [popup, setPopup] = useState(null);
+
+    const navigate = useNavigate();
 
     const mostrarPopup = (titulo, mensaje, accionAlCerrar = null) => {
         setPopup({ titulo, mensaje, alCerrar: accionAlCerrar });
@@ -44,113 +55,97 @@ const Registro = () => {
         setFormulario({ ...formulario, [e.target.name]: e.target.value });
     };
 
-    const handleRegister = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const { run, nombre, apellidos, correo, confirmarCorreo, passw, confirmarPassw, telefono, fecha, direccion } = formulario;
-        const runUpper = run.trim().toUpperCase();
-        const correoLower = correo.trim().toLowerCase();
-        const confCorreoLower = confirmarCorreo.trim().toLowerCase();
 
-        if (runUpper.length < 7 || runUpper.length > 9) {
-            mostrarPopup("Aviso", "El RUN debe tener entre 7 y 9 caracteres, sin puntos ni guión.");
-            return;
-        }
-        if (nombre.trim().length > 50) {
-            mostrarPopup("Aviso", "El nombre no puede superar los 50 caracteres.");
-            return;
-        }
-        if (apellidos.trim().length > 100) {
-            mostrarPopup("Aviso", "Los apellidos no pueden superar los 100 caracteres.");
-            return;
-        }
-        if (direccion.trim().length > 300) {
-            mostrarPopup("Aviso", "La dirección no puede superar los 300 caracteres.");
-            return;
-        }
-        if (!correoLower.endsWith("@duoc.cl") && !correoLower.endsWith("@profesor.duoc.cl") && !correoLower.endsWith("@gmail.com")) {
-            mostrarPopup("Aviso", "Solo se permiten correos @duoc.cl, @profesor.duoc.cl o @gmail.com.");
-            return;
-        }
-        if (correoLower !== confCorreoLower) {
-            mostrarPopup("Error", "Los correos no coinciden.");
-            return;
-        }
-        if (passw.trim().length < 4 || passw.trim().length > 10) {
-            mostrarPopup("Error", "La contraseña debe tener entre 4 y 10 caracteres.");
-            return;
-        }
-        if (passw.trim() !== confirmarPassw.trim()) {
+        if (formulario.password !== formulario.confirmarPassword) {
             mostrarPopup("Error", "Las contraseñas no coinciden.");
             return;
         }
 
-        let usuarios = JSON.parse(localStorage.getItem('lista_usuarios')) || [];
-        const usuarioExiste = usuarios.find(user => user.correo.toLowerCase() === correoLower);
-
-        if (usuarioExiste) {
-            mostrarPopup("Error", "Ya existe un usuario registrado con este correo.");
+        const correoNormalizado = formulario.correo.trim().toLowerCase();
+        if (!correoNormalizado.endsWith("@duoc.cl") && !correoNormalizado.endsWith("@profesor.duoc.cl") && !correoNormalizado.endsWith("@gmail.com")) {
+            mostrarPopup("Aviso", "Solo se permiten correos @duoc.cl, @profesor.duoc.cl o @gmail.com.");
             return;
         }
 
-        const regionTexto = datosUbicacion[indiceRegion].region;
-        const nuevoUser = {
-            run: runUpper, nombre: nombre.trim(), apellidos: apellidos.trim(),
-            correo: correoLower, contra: passw.trim(), telefono: telefono.trim(),
-            fechaNacimiento: fecha, direccion: direccion.trim(), region: regionTexto,
-            comuna: comunaSeleccionada, tipo: "Cliente"
+        const regionNombre = indiceRegion !== '' ? datosUbicacion[indiceRegion].region : '';
+
+        const nuevoUsuario = {
+            run: formulario.run.trim(),
+            nombre: formulario.nombre.trim(),
+            apellidos: formulario.apellidos.trim(),
+            correo: correoNormalizado,
+            password: formulario.password.trim(),
+            rol: "Cliente",
+            telefono: formulario.telefono.trim(),
+            fechaNacimiento: formulario.fechaNacimiento || null,
+            direccionDefecto: formulario.direccion.trim(),
+            region: regionNombre,
+            comuna: comunaSeleccionada
         };
 
-        usuarios.push(nuevoUser);
-        localStorage.setItem('lista_usuarios', JSON.stringify(usuarios));
-        mostrarPopup("¡Registro exitoso!", "¡Registro exitoso! Ahora puedes iniciar sesión.", () => navigate('/inicio'));
+        setCargando(true);
+        try {
+            await AuthService.registro(nuevoUsuario);
+            mostrarPopup("¡Registro Exitoso!", "Tu cuenta ha sido creada exitosamente en el sistema. Ahora puedes iniciar sesión.", () => {
+                navigate('/inicio');
+            });
+        } catch (error) {
+            console.error("Error en registro:", error);
+            const msg = error.response?.data?.error || "No se pudo registrar el usuario. El correo o RUN ya existen, o el servicio no está disponible.";
+            mostrarPopup("Error al Registrar", msg);
+        } finally {
+            setCargando(false);
+        }
     };
 
     return (
         <main>
-            <div className="container mt-5 mb-5 pt-5">
+            <div className="container mt-5">
+                <div className="text-center">
+                    <img src="/img/logoRV-NF.png" alt="imgEmpresa" className="logo-inicio-sesion" />
+                </div>
+            </div>
+
+            <div className="container mb-5 pt-5">
                 <div className="row">
                     <div className="col-12 col-md-8 mx-auto p-4 caja-gris">
                         <div>
-                            <div className="caja-reg-inicio-peq">
-                                <h5 className="mb-0 fuente-palabras text-center">Registro de usuario</h5>
+                            <div className="cabeza-formulario-gris caja-gris" style={{ backgroundColor: '#6e7c61' }}>
+                                <h5 className="mb-0 text-center">Registro de Cliente</h5>
                             </div>
-                            
-                            <form id="f-registro" onSubmit={handleRegister}>
-                                <div className="mb-3">
-                                    <label className="form-label mb-1 fuente-palabras-slim">RUN (Sin puntos ni guión)*</label>
-                                    <input type="text" name="run" className="form-control border-dark" minLength="7" maxLength="9" placeholder="Ej: 19011022K" required value={formulario.run} onChange={handleChange} />
+                            <form id="f-registro" onSubmit={handleSubmit}>
+                                <div className="row">
+                                    <div className="col-12 col-md-6 mb-3">
+                                        <label className="form-label mb-1 fuente-palabras-slim">RUN*</label>
+                                        <input type="text" name="run" className="form-control border-dark" placeholder="12345678-9" required value={formulario.run} onChange={handleChange} />
+                                    </div>
+                                    <div className="col-12 col-md-6 mb-3">
+                                        <label className="form-label mb-1 fuente-palabras-slim">CORREO ELECTRÓNICO*</label>
+                                        <input type="email" name="correo" className="form-control border-dark" placeholder="usuario@duoc.cl" required value={formulario.correo} onChange={handleChange} />
+                                    </div>
                                 </div>
 
                                 <div className="row">
                                     <div className="col-12 col-md-6 mb-3">
                                         <label className="form-label mb-1 fuente-palabras-slim">NOMBRE*</label>
-                                        <input type="text" name="nombre" className="form-control border-dark" maxLength="50" required value={formulario.nombre} onChange={handleChange} />
+                                        <input type="text" name="nombre" className="form-control border-dark" required value={formulario.nombre} onChange={handleChange} />
                                     </div>
                                     <div className="col-12 col-md-6 mb-3">
                                         <label className="form-label mb-1 fuente-palabras-slim">APELLIDOS*</label>
-                                        <input type="text" name="apellidos" className="form-control border-dark" maxLength="100" required value={formulario.apellidos} onChange={handleChange} />
+                                        <input type="text" name="apellidos" className="form-control border-dark" required value={formulario.apellidos} onChange={handleChange} />
                                     </div>
                                 </div>
 
                                 <div className="row">
                                     <div className="col-12 col-md-6 mb-3">
-                                        <label className="form-label mb-1 fuente-palabras-slim">CORREO*</label>
-                                        <input type="email" name="correo" className="form-control border-dark" maxLength="100" required value={formulario.correo} onChange={handleChange} />
-                                    </div>
-                                    <div className="col-12 col-md-6 mb-3">
-                                        <label className="form-label mb-1 fuente-palabras-slim">CONFIRMAR CORREO*</label>
-                                        <input type="email" name="confirmarCorreo" className="form-control border-dark" maxLength="100" required value={formulario.confirmarCorreo} onChange={handleChange} />
-                                    </div>
-                                </div>
-                                
-                                <div className="row">
-                                    <div className="col-12 col-md-6 mb-3">
                                         <label className="form-label mb-1 fuente-palabras-slim">CONTRASEÑA*</label>
-                                        <input type="password" name="passw" className="form-control border-dark" minLength="4" maxLength="10" required value={formulario.passw} onChange={handleChange} />
+                                        <input type="password" name="password" className="form-control border-dark" required value={formulario.password} onChange={handleChange} />
                                     </div>
                                     <div className="col-12 col-md-6 mb-3">
                                         <label className="form-label mb-1 fuente-palabras-slim">CONFIRMAR CONTRASEÑA*</label>
-                                        <input type="password" name="confirmarPassw" className="form-control border-dark" minLength="4" maxLength="10" required value={formulario.confirmarPassw} onChange={handleChange} />
+                                        <input type="password" name="confirmarPassword" className="form-control border-dark" required value={formulario.confirmarPassword} onChange={handleChange} />
                                     </div>
                                 </div>
 
@@ -161,7 +156,7 @@ const Registro = () => {
                                     </div>
                                     <div className="col-12 col-md-6 mb-3">
                                         <label className="form-label mb-1 fuente-palabras-slim">FECHA DE NACIMIENTO (Opcional)</label>
-                                        <input type="date" name="fecha" className="form-control border-dark" value={formulario.fecha} onChange={handleChange} />
+                                        <input type="date" name="fechaNacimiento" className="form-control border-dark" value={formulario.fechaNacimiento} onChange={handleChange} />
                                     </div>
                                 </div>
 
@@ -190,7 +185,9 @@ const Registro = () => {
                                 </div>
 
                                 <div className="text-center mt-3 boton-reini">
-                                    <button type="submit" className="btn boton-reini px-5 py-2">REGISTRAR</button>
+                                    <button type="submit" className="btn boton-reini px-5 py-2" disabled={cargando}>
+                                        {cargando ? 'REGISTRANDO...' : 'REGISTRAR'}
+                                    </button>
                                 </div>
                             </form>
                         </div>

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import OrdenesService from '../../services/OrdenesService';
 
 const Campo = ({ etiqueta, name, valor, onChange, editable, tipo = 'text', requerido = false, col = 'col-12 col-md-6' }) => (
     <div className={`${col} mb-3`}>
@@ -24,14 +25,33 @@ const DetalleBoleta = ({ editable = false }) => {
     const [noEncontrado, setNoEncontrado] = useState(false);
 
     useEffect(() => {
-        const boletas = JSON.parse(localStorage.getItem('boletas')) || [];
-        const encontrada = boletas.find((b) => String(b.numero) === numero);
-        if (!encontrada) {
-            setNoEncontrado(true);
-            return;
-        }
-        setBoleta(encontrada);
-    }, [numero, navigate]);
+        OrdenesService.obtenerBoleta(numero)
+            .then((data) => {
+                if (!data) {
+                    setNoEncontrado(true);
+                    return;
+                }
+                const adaptada = {
+                    ...data,
+                    numero: data.numero || data.numeroOrden || numero,
+                    cliente: data.cliente || {
+                        nombre: '',
+                        apellidos: '',
+                        correo: '',
+                        calle: data.calle || '',
+                        departamento: data.departamento || '',
+                        comuna: data.comuna || '',
+                        region: data.region || '',
+                        indicaciones: data.indicaciones || ''
+                    },
+                    productos: Array.isArray(data.productos) ? data.productos : []
+                };
+                setBoleta(adaptada);
+            })
+            .catch(() => {
+                setNoEncontrado(true);
+            });
+    }, [numero]);
     
     if (noEncontrado) {
         return (
@@ -62,8 +82,8 @@ const DetalleBoleta = ({ editable = false }) => {
         e.preventDefault();
 
         const productos = boleta.productos.map((p) => {
-            const cantidad = parseInt(p.cantidad);
-            const precio = parseFloat(p.precio);
+            const cantidad = parseInt(p.cantidad) || 1;
+            const precio = parseFloat(p.precio) || 0;
             return { ...p, cantidad, precio, subtotal: cantidad * precio };
         });
         const actualizada = {
@@ -71,17 +91,13 @@ const DetalleBoleta = ({ editable = false }) => {
             productos,
             total: productos.reduce((suma, p) => suma + p.subtotal, 0)
         };
-
-        const boletas = JSON.parse(localStorage.getItem('boletas')) || [];
-        const lista = boletas.map((b) => (String(b.numero) === numero ? actualizada : b));
-        localStorage.setItem('boletas', JSON.stringify(lista));
-
-    setGuardada(true);
-    setTimeout(() => navigate('/admin/boletas'), 1500);
+        setBoleta(actualizada);
+        setGuardada(true);
+        setTimeout(() => navigate('/admin/boletas'), 1500);
     };
 
     const titulo = editable ? `Editando boleta #${boleta.numero}` : `Detalle de boleta #${boleta.numero}`;
-    const c = boleta.cliente;
+    const c = boleta.cliente || {};
 
     return (
         <main className="col-12 col-md-9 col-xl-10 p-4 p-md-5 admin-fondo-crear">
@@ -89,11 +105,11 @@ const DetalleBoleta = ({ editable = false }) => {
                 <div className="mb-4 p-2 text-center text-uppercase caja-gris fuente-palabras admin-titulo-formulario">
                     {titulo}
                 </div>
-                        {guardada && (
-                            <div className="alert alert-success text-center" role="alert">
-                                Boleta actualizada con éxito.
-                            </div>
-                        )}
+                {guardada && (
+                    <div className="alert alert-success text-center" role="alert">
+                        Boleta actualizada con éxito.
+                    </div>
+                )}
                 <form onSubmit={guardar}>
                     <div className="row">
                         <Campo etiqueta="Número" name="numero" valor={boleta.numero} editable={false} col="col-12 col-md-4" />
@@ -103,7 +119,7 @@ const DetalleBoleta = ({ editable = false }) => {
                             <select
                                 name="metodoPago"
                                 className="form-select rounded-0 border-dark"
-                                value={boleta.metodoPago}
+                                value={boleta.metodoPago || 'Tarjeta Visa / Mastercard'}
                                 onChange={cambiarGeneral}
                                 disabled={!editable}
                             >
@@ -158,7 +174,7 @@ const DetalleBoleta = ({ editable = false }) => {
                                             <input
                                                 type="text"
                                                 className="form-control rounded-0 border-dark"
-                                                value={p.nombre}
+                                                value={p.nombre || ''}
                                                 onChange={(e) => cambiarProducto(i, 'nombre', e.target.value)}
                                                 readOnly={!editable}
                                                 required={editable}
@@ -170,7 +186,7 @@ const DetalleBoleta = ({ editable = false }) => {
                                                 className="form-control rounded-0 border-dark"
                                                 min="1"
                                                 step="1"
-                                                value={p.cantidad}
+                                                value={p.cantidad || 1}
                                                 onChange={(e) => cambiarProducto(i, 'cantidad', e.target.value)}
                                                 readOnly={!editable}
                                                 required={editable}
@@ -182,7 +198,7 @@ const DetalleBoleta = ({ editable = false }) => {
                                                 className="form-control rounded-0 border-dark"
                                                 min="0"
                                                 step="any"
-                                                value={p.precio}
+                                                value={p.precio || 0}
                                                 onChange={(e) => cambiarProducto(i, 'precio', e.target.value)}
                                                 readOnly={!editable}
                                                 required={editable}

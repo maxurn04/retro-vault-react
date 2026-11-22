@@ -1,13 +1,25 @@
-import React, { useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import ProductoCarta from '../components/ProductoCarta';
-import { productosData } from '../data/productos';
 import { ContextoUsuario } from '../contexto/ContextoUsuario';
+import CatalogoService from '../services/CatalogoService';
 
 const Home = () => {
     const { usuarioActivo, cerrarSesion } = useContext(ContextoUsuario);
-    const consolasDestacadas = productosData.filter(prod => [1, 4, 5, 6].includes(prod.id));
-    const accesoriosDestacados = productosData.filter(prod => [8, 10, 12].includes(prod.id));
+    const [productos, setProductos] = useState([]);
+
+    useEffect(() => {
+        CatalogoService.obtenerProductos()
+            .then(data => {
+                setProductos(data || []);
+            })
+            .catch(() => {
+                setProductos([]);
+            });
+    }, []);
+
+    const consolasDestacadas = productos.filter(p => [1, 4, 5, 6].includes(p.id) || (p.categoria?.nombre || p.categoria) === 'Consolas');
+    const accesoriosDestacados = productos.filter(p => [8, 10, 12].includes(p.id) || (p.categoria?.nombre || p.categoria) === 'Accesorios');
 
     return (
         <main>
@@ -50,80 +62,68 @@ const Home = () => {
 
             <article>
                 <div className="container caja-gris p-3">
-                    <div className="row">
-                        <h2 className="fuente-palabras text-center titulo-destacados text-white">Objetos Destacados</h2>
-                        <div className="col-12 col-md-8 col-lg-6 mx-auto">
-                            <div id="carouselExample" className="carousel slide" data-bs-ride="carousel">
-                                <div className="carousel-inner">
-                                    <div className="carousel-item active" data-bs-interval="3000">
-                                        <Link to="/detalleprod/2">
-                                            <img src="/img/zelda64.webp" className="d-block w-100 img-fluid imagen-productos-grande" alt="Zelda 64" />
-                                        </Link>
-                                    </div>
-                                    <div className="carousel-item" data-bs-interval="3000">
-                                        <Link to="/detalleprod/1">
-                                            <img src="/img/ps2.jpg" className="d-block w-100 img-fluid imagen-productos-grande" alt="PS2" />
-                                        </Link>
-                                    </div>
-                                    <div className="carousel-item" data-bs-interval="3000">
-                                        <Link to="/detalleprod/4">
-                                            <img src="/img/ps3.jpg" className="d-block w-100 img-fluid imagen-productos-grande" alt="PS3" />
-                                        </Link>
-                                    </div>
-                                </div>
-                                <button className="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-                                    <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span className="visually-hidden">Previous</span>
-                                </button>
-                                <button className="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-                                    <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span className="visually-hidden">Next</span>
-                                </button>
-                            </div>
-                        </div>
+                    <h2 className="fuente-palabras text-center">Objetos Destacados</h2>
+                    <div className="text-center mt-3">
+                        <Link to="/detalleprod/2">
+                            <img src="/img/zelda64.webp" alt="Zelda 64" className="img-fluid imagen-productos-grande" />
+                        </Link>
                     </div>
+                </div>
+                
+                <div className="container pb-2 mt-4">
+                    <hr className="linea-separacion" />
                 </div>
             </article>
 
-            <div className="container pt-3">
-                <hr className="linea-separacion" />
-            </div>
-            
-            <div className="container mt-5">
-                <div className="row">
-                    <h2 className="fuente-palabras text-white">
-                        Consolas <Link className="fuente-palabras enlace-ver-mas" to="/productos-cons-jueg"> Ver mas...</Link>
-                    </h2>
-                    {consolasDestacadas.map((prod) => (
-                        <ProductoCarta 
-                            key={prod.id}
-                            id={prod.id}
-                            nombre={prod.nombre}
-                            precio={prod.precio}
-                            img={prod.img}
-                        />
-                    ))}
+            <article>
+                <div className="container mt-4">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h2 className="fuente-palabras m-0">Consolas <span style={{ color: '#bca624', fontSize: '1.2rem' }}>Ver mas...</span></h2>
+                        <Link to="/productos-cons-jueg" className="btn boton-reini">
+                            Explorar Todas
+                        </Link>
+                    </div>
+                    
+                    <div className="row g-4 mb-5">
+                        {consolasDestacadas.map((prod) => (
+                            <ProductoCarta 
+                                key={prod.id}
+                                id={prod.id}
+                                nombre={prod.nombre}
+                                precio={prod.precio}
+                                img={prod.img || prod.imagenUrl}
+                            />
+                        ))}
+                    </div>
                 </div>
-                
-                <div className="container pt-3">
-                    <hr className="linea-separacion linea-separacion-dorada" />
+
+                <div className="container pb-2">
+                    <hr className="linea-separacion" />
                 </div>
-                
-                <div className="row">
-                    <h2 className="fuente-palabras text-white">
-                        Accesorios destacados <Link className="fuente-palabras enlace-ver-mas" to="/productos-accesorios"> Ver mas...</Link>
-                    </h2>
-                    {accesoriosDestacados.map((prod) => (
-                        <ProductoCarta 
-                            key={prod.id}
-                            id={prod.id}
-                            nombre={prod.nombre}
-                            precio={prod.precio}
-                            img={prod.img}
-                        />
-                    ))}
+            </article>
+
+            <article>
+                <div className="container mt-4">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h2 className="fuente-palabras m-0">Accesorios <span style={{ color: '#bca624', fontSize: '1.2rem' }}>Ver mas...</span></h2>
+                        <Link to="/productos-accesorios" className="btn boton-reini">
+                            Explorar Todos
+                        </Link>
+                    </div>
+                    
+                    <div className="row g-4 mb-5">
+                        {accesoriosDestacados.map((prod) => (
+                            <ProductoCarta 
+                                key={prod.id}
+                                id={prod.id}
+                                nombre={prod.nombre}
+                                precio={prod.precio}
+                                img={prod.img || prod.imagenUrl}
+                            />
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </article>
         </main>
     );
 };

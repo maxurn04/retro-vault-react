@@ -1,9 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductoCarta';
-import { productosData } from '../data/productos';
+import CatalogoService from '../services/CatalogoService';
 
 const Productos = () => {
+    const [productos, setProductos] = useState([]);
+
+    useEffect(() => {
+        CatalogoService.obtenerProductos()
+            .then((data) => {
+                setProductos(data || []);
+            })
+            .catch(() => {
+                setProductos([]);
+            });
+    }, []);
+
     return (
         <main>
             <article>
@@ -16,13 +28,13 @@ const Productos = () => {
                     </div>
                     
                     <div className="row g-4 mb-5">
-                        {productosData.map((prod) => (
+                        {productos.map((prod) => (
                             <ProductCard 
                                 key={prod.id}
                                 id={prod.id}
                                 nombre={prod.nombre}
                                 precio={prod.precio}
-                                img={prod.img}
+                                img={prod.img || prod.imagenUrl}
                             />
                         ))}
                     </div>

@@ -1,9 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductoCarta from '../components/ProductoCarta';
-import { productosData } from '../data/productos';
+import CatalogoService from '../services/CatalogoService';
 
 const ProductosAccesorios = () => {
-    const accesorios = productosData.filter(pro => pro.categoria === "Accesorios");
+    const [accesorios, setAccesorios] = useState([]);
+
+    useEffect(() => {
+        CatalogoService.obtenerProductos()
+            .then((data) => {
+                const lista = data || [];
+                setAccesorios(lista.filter(prod => {
+                    const cat = prod.categoria?.nombre || prod.categoria;
+                    return cat === 'Accesorios';
+                }));
+            })
+            .catch(() => {
+                setAccesorios([]);
+            });
+    }, []);
 
     return (
         <main>
@@ -17,7 +31,7 @@ const ProductosAccesorios = () => {
                                 id={prod.id}
                                 nombre={prod.nombre}
                                 precio={prod.precio}
-                                img={prod.img}
+                                img={prod.img || prod.imagenUrl}
                             />
                         ))}
                     </div>

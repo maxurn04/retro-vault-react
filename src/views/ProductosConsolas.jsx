@@ -1,9 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductoCarta from '../components/ProductoCarta';
-import { productosData } from '../data/productos';
+import CatalogoService from '../services/CatalogoService';
 
 const ProductosConsolas = () => {
-    const consolas = productosData.filter(prod => prod.categoria === "Consolas" || prod.categoria === "Juegos");
+    const [consolas, setConsolas] = useState([]);
+
+    useEffect(() => {
+        CatalogoService.obtenerProductos()
+            .then((data) => {
+                const lista = data || [];
+                setConsolas(lista.filter(prod => {
+                    const cat = prod.categoria?.nombre || prod.categoria;
+                    return cat === 'Consolas' || cat === 'Juegos';
+                }));
+            })
+            .catch(() => {
+                setConsolas([]);
+            });
+    }, []);
 
     return (
         <main>
@@ -17,7 +31,7 @@ const ProductosConsolas = () => {
                                 id={prod.id}
                                 nombre={prod.nombre}
                                 precio={prod.precio}
-                                img={prod.img}
+                                img={prod.img || prod.imagenUrl}
                             />
                         ))}
                     </div>

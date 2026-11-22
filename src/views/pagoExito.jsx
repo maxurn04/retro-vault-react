@@ -7,30 +7,10 @@ const PagoExito = () => {
     const { vaciarCarrito } = useContext(ContextoCarrito);
 
     useEffect(() => {
-    vaciarCarrito();
-    localStorage.setItem('carrito', JSON.stringify([]));
-
-    if (!state) return;
-
-    const boletas = JSON.parse(localStorage.getItem('boletas')) || [];
-    if (boletas.some((b) => b.numero === state.numero)) return;
-
-    boletas.push({
-        numero: state.numero,
-        fecha: new Date().toLocaleString('es-CL'),
-        metodoPago: state.metodoPago,
-        cliente: state.cliente,
-        productos: state.productos.map((item) => ({
-            id: item.id,
-            nombre: item.nombre,
-            cantidad: item.cantidad,
-            precio: item.precio,
-            subtotal: item.precio * item.cantidad
-        })),
-        total: state.total
-    });
-    localStorage.setItem('boletas', JSON.stringify(boletas));
-}, []);
+        vaciarCarrito();
+        localStorage.removeItem('boletas');
+        localStorage.removeItem('carrito');
+    }, []);
 
     const descargarBoleta = () => {
         window.print();
@@ -51,7 +31,7 @@ const PagoExito = () => {
                 <div className="caja-gris p-4 mx-auto" style={{ maxWidth: '800px' }}>
                     <div className="text-center mb-4">
                         <h2 className="fuente-palabras text-success">¡Pago Correcto!</h2>
-                        <p className="text-white fuente-palabras-slim fs-5">Se ha realizado la compra. Nro #{state.numero}</p>
+                        <p className="text-white fuente-palabras-slim fs-5">Se ha realizado la compra. Nro {state.numero?.startsWith('#') ? state.numero : `#${state.numero}`}</p>
                         <span className="badge bg-warning text-dark fuente-palabras fs-6">Método: {state.metodoPago}</span>
                     </div>
 

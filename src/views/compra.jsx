@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
 import { ContextoUsuario } from '../contexto/ContextoUsuario';
+import OrdenesService from '../services/OrdenesService';
 
 const Compra = () => {
     const { carrito, totalVenta, vaciarCarrito } = useContext(ContextoCarrito);
@@ -43,15 +44,14 @@ const Compra = () => {
         setFormulario({ ...formulario, [e.target.name]: e.target.value });
     };
 
-    const procesarPago = () => {
+    const procesarPago = async () => {
         if (!formulario.nombre.trim() || !formulario.apellidos.trim() || !formulario.correo.trim() || !formulario.calle.trim()) {
             mostrarPopup("Datos Incompletos", "Por favor completa los datos obligatorios del cliente y envío.");
             return;
         }
 
-        const numeroOrden = Math.floor(100000 + Math.random() * 900000);
         const datosOrden = {
-            numero: numeroOrden,
+            numero: Math.floor(100000 + Math.random() * 900000),
             productos: [...carrito],
             total: totalVenta,
             cliente: { ...formulario },
@@ -60,11 +60,39 @@ const Compra = () => {
 
         if (metodoPago === '') {
             navigate('/pago-malo', { state: datosOrden });
-        } else {
-            vaciarCarrito();
-            localStorage.setItem('carrito', JSON.stringify([]));
-            navigate('/pago-exito', { state: datosOrden });
+            return;
         }
+
+        try {
+            const resp = await OrdenesService.procesarCompra({
+                cliente: {
+                    usuarioId: usuarioActivo?.id || null,
+                    nombre: formulario.nombre.trim(),
+                    apellidos: formulario.apellidos.trim(),
+                    correo: formulario.correo.trim(),
+                    telefono: usuarioActivo?.telefono || ''
+                },
+                direccion: {
+                    calle: formulario.calle.trim(),
+                    departamento: formulario.departamento.trim(),
+                    region: formulario.region.trim(),
+                    comuna: formulario.comuna.trim(),
+                    indicaciones: formulario.indicaciones.trim()
+                },
+                metodoPago: metodoPago,
+                items: carrito.map(i => ({ productoId: i.id, cantidad: i.cantidad, precio: i.precio }))
+            });
+
+            if (resp && resp.ordenId) {
+                await OrdenesService.procesarPago(resp.ordenId, { metodoPago, simularError: false });
+                datosOrden.numero = resp.numeroOrden || datosOrden.numero;
+            }
+        } catch (err) {
+            console.error(err);
+        }
+
+        vaciarCarrito();
+        navigate('/pago-exito', { state: datosOrden });
     };
 
     return (

@@ -1,18 +1,45 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { productosData } from '../data/productos';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
+import CatalogoService from '../services/CatalogoService';
 
 const DetalleProducto = () => {
     const { id } = useParams();
-    const prod = productosData.find(item => item.id === parseInt(id));
+    const [prod, setProd] = useState(null);
+    const [cargando, setCargando] = useState(true);
     const [cantidad, setCantidad] = useState(1);
     const [popup, setPopup] = useState(null);
     const { agregarAlCarrito } = useContext(ContextoCarrito);
 
+    useEffect(() => {
+        setCargando(true);
+        CatalogoService.obtenerProductoPorId(id)
+            .then((data) => {
+                if (data) {
+                    setProd(data);
+                } else {
+                    setProd(null);
+                }
+            })
+            .catch(() => {
+                setProd(null);
+            })
+            .finally(() => {
+                setCargando(false);
+            });
+    }, [id]);
+
+    if (cargando) {
+        return <h3 className="text-center text-white mt-5 fuente-palabras">Cargando producto...</h3>;
+    }
+
     if (!prod) {
         return <h2 className="text-center text-white mt-5 fuente-palabras">Producto No Encontrado</h2>;
     }
+
+    const imagenPrincipal = prod.imagenUrl || prod.img || '/img/logoRV.jpg';
+    const imagen2 = prod.img2 || null;
+    const imagen3 = prod.img3 || null;
 
     const mostrarPopup = (titulo, mensaje, accionAlCerrar = null) => {
         setPopup({ titulo, mensaje, alCerrar: accionAlCerrar });
@@ -43,16 +70,16 @@ const DetalleProducto = () => {
                         <div id="carouselExample" className="carousel slide" data-bs-ride="carousel">
                             <div className="carousel-inner">
                                 <div className="carousel-item active" data-bs-interval="3000">
-                                    <img src={prod.img} className="d-block w-100 img-fluid imagen-productos-grande" alt={prod.nombre} />
+                                    <img src={imagenPrincipal} className="d-block w-100 img-fluid imagen-productos-grande" alt={prod.nombre} />
                                 </div>
-                                {prod.img2 && (
+                                {imagen2 && (
                                     <div className="carousel-item" data-bs-interval="3000">
-                                        <img src={prod.img2} className="d-block w-100 img-fluid imagen-productos-grande" alt={prod.nombre} />
+                                        <img src={imagen2} className="d-block w-100 img-fluid imagen-productos-grande" alt={prod.nombre} />
                                     </div>
                                 )}
-                                {prod.img3 && (
+                                {imagen3 && (
                                     <div className="carousel-item" data-bs-interval="3000">
-                                        <img src={prod.img3} className="d-block w-100 img-fluid imagen-productos-grande" alt={prod.nombre} />
+                                        <img src={imagen3} className="d-block w-100 img-fluid imagen-productos-grande" alt={prod.nombre} />
                                     </div>
                                 )}
                             </div>
@@ -76,9 +103,9 @@ const DetalleProducto = () => {
                     
                     <hr className="linea-separacion" style={{ borderColor: '#bca624' }} />
                     <p className="mt-4" style={{ lineHeight: '1.6', textAlign: 'justify' }}>
-                        {prod.desc || "No hay descripcion del articulo"}
+                        {prod.descripcion || prod.desc || "No hay descripción disponible para este artículo."}
                     </p>
-                    <p>{prod.codigo}</p>
+                    <p className="text-secondary">{prod.codigo}</p>
                     
                     <div className="d-flex align-items-center mb-4">
                         <label htmlFor="detalle-cantidad" className="me-3 fuente-palabras">Cantidad:</label>
@@ -93,7 +120,7 @@ const DetalleProducto = () => {
                         /> 
                         <h6 className="fuente-palabras-slim ms-auto mb-0">
                             Stock: {prod.stock}
-                            {prod.stock <= prod.stockCritico && (
+                            {prod.stock <= (prod.stockCritico || 3) && (
                                 <p className="fuente-palabras marcar-efecto d-inline ms-2 mb-0">¡Quedan pocos!</p>
                             )}
                         </h6>

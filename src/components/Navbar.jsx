@@ -1,14 +1,24 @@
 import React, { useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ContextoCarrito } from '../contexto/ContextoCarrito';
+import { ContextoUsuario } from '../contexto/ContextoUsuario';
 
 const Navbar = () => {
     const { cantidadTotal } = useContext(ContextoCarrito);
+    const { usuarioActivo, cerrarSesion } = useContext(ContextoUsuario);
     const location = useLocation();
+    const navigate = useNavigate();
 
-    if (location.pathname.startsWith('/admin')) { //para que no aparezca en el admin
+    if (location.pathname.startsWith('/admin')) {
         return null;
     }
+
+    const handleCerrarSesion = () => {
+        cerrarSesion();
+        navigate('/');
+    };
+
+    const esAdminOVendedor = usuarioActivo?.rol === 'Administrador' || usuarioActivo?.rol === 'Vendedor' || usuarioActivo?.tipo === 'Administrador' || usuarioActivo?.tipo === 'Vendedor';
 
     return (
         <nav className="navbar navbar-expand-lg navbar-estilo">
@@ -43,7 +53,38 @@ const Navbar = () => {
                         </li>
                     </ul>
 
-                    <div className="d-flex align-items-center justify-content-center mt-3 mt-lg-0">
+                    <div className="d-flex align-items-center justify-content-center gap-3 mt-3 mt-lg-0">
+                        {usuarioActivo ? (
+                            <div className="d-flex align-items-center gap-2">
+                                {esAdminOVendedor && (
+                                    <Link to="/admin" className="btn btn-warning btn-sm fw-bold">
+                                        <i className="bi bi-speedometer2 me-1"></i>Panel Admin
+                                    </Link>
+                                )}
+                                <span className="text-white small d-none d-md-inline">
+                                    <i className="bi bi-person-circle me-1"></i>
+                                    {usuarioActivo.nombre}
+                                </span>
+                                <button 
+                                    type="button" 
+                                    onClick={handleCerrarSesion} 
+                                    className="btn btn-outline-light btn-sm"
+                                    title="Cerrar sesión"
+                                >
+                                    <i className="bi bi-box-arrow-right"></i>
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="d-flex align-items-center gap-2">
+                                <Link to="/inicio" className="btn btn-outline-light btn-sm fuente-palabras">
+                                    Ingresar
+                                </Link>
+                                <Link to="/registro" className="btn btn-success btn-sm fuente-palabras">
+                                    Registro
+                                </Link>
+                            </div>
+                        )}
+
                         <Link to="/carrito" className="btn d-flex align-items-center">
                             <img src="/img/carrito.svg" alt="Icono Carro" className="img-fluid carrito-estilo me-2" />
                             <span className="fuente-palabras" style={{color: 'white'}}>CARRO</span>

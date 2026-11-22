@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductoCarta from '../components/ProductoCarta';
-import { productosData } from '../data/productos';
+import CatalogoService from '../services/CatalogoService';
 
 const Ofertas = () => {
-    const productosEnOferta = productosData.filter(prod => prod.oferta === true);
+    const [productosEnOferta, setProductosEnOferta] = useState([]);
+
+    useEffect(() => {
+        CatalogoService.obtenerProductos()
+            .then((data) => {
+                const lista = data || [];
+                setProductosEnOferta(lista.filter(prod => prod.esOferta || prod.oferta));
+            })
+            .catch(() => {
+                setProductosEnOferta([]);
+            });
+    }, []);
 
     return (
         <main>
@@ -17,8 +28,8 @@ const Ofertas = () => {
                                     key={prod.id}
                                     id={prod.id}
                                     nombre={prod.nombre}
-                                    precio={prod.precio}
-                                    img={prod.img}
+                                    precio={prod.precioOferta || prod.precio}
+                                    img={prod.img || prod.imagenUrl}
                                 />
                             ))
                         ) : (
