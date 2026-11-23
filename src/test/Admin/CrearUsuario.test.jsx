@@ -1,8 +1,13 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import CrearUsuario from '../../views/admin/crearusuario';
 import { datosUbicacion } from '../../views/Registro';
+import AdminService from '../../services/AdminService';
+
+vi.mock('../../services/AdminService', () => ({
+    default: { crearUsuario: vi.fn() }
+}));
 
 const llenar = (container, id, valor) =>
     fireEvent.change(container.querySelector(`#${id}`), { target: { value: valor } });
@@ -29,33 +34,36 @@ const renderizar = () =>
 
 describe('vista admin de crear usuario', () => {
     beforeEach(() => {
-        localStorage.clear();
+        vi.clearAllMocks();
     });
 
-    it('rechaza un correo con dominio no permitido y no guarda al usuario', () => {
+    it('rechaza un correo con dominio no permitido y no llama al backend', () => {
         const { container } = renderizar();
         completarFormulario(container, 'ana@hotmail.com');
         fireEvent.click(screen.getByRole('button', { name: /registrar/i }));
         expect(screen.getByText(/solo se permiten correos/i)).toBeInTheDocument();
-        expect(localStorage.getItem('lista_usuarios')).toBeNull();
+        expect(AdminService.crearUsuario).not.toHaveBeenCalled();
     });
 
-    it('guarda al usuario como Cliente y muestra el aviso de éxito', () => {
+    it('envía al usuario al backend como CLIENTE y muestra el aviso de éxito', async () => {
+        AdminService.crearUsuario.mockResolvedValue({ id: 9 });
         const { container } = renderizar();
         completarFormulario(container, 'ana@gmail.com');
         fireEvent.click(screen.getByRole('button', { name: /registrar/i }));
-        const usuarios = JSON.parse(localStorage.getItem('lista_usuarios'));
-        expect(usuarios).toHaveLength(1);
-        expect(usuarios[0]).toMatchObject({ correo: 'ana@gmail.com', tipo: 'Cliente', region: datosUbicacion[0].region });
-        expect(screen.getByText('Usuario creado con éxito.')).toBeInTheDocument();
+        expect(await screen.findByText('Usuario creado con éxito.')).toBeInTheDocument();
+        expect(AdminService.crearUsuario).toHaveBeenCalledWith(
+            expect.objectContaining({
+                correo: 'ana@gmail.com', password: '1234', rol: 'CLIENTE',
+                direccionDefecto: 'Calle 1', region: datosUbicacion[0].region
+            })
+        );
     });
 
-    it('rechaza un correo que ya está registrado', () => {
-        localStorage.setItem('lista_usuarios', JSON.stringify([{ correo: 'ana@gmail.com' }]));
+    it('muestra el error del backend cuando el correo ya está registrado', async () => {
+        AdminService.crearUsuario.mockRejectedValue({ response: { data: { error: 'Ya existe un usuario con el correo ana@gmail.com' } } });
         const { container } = renderizar();
         completarFormulario(container, 'ana@gmail.com');
         fireEvent.click(screen.getByRole('button', { name: /registrar/i }));
-        expect(screen.getByText(/ya existe un usuario registrado/i)).toBeInTheDocument();
-        expect(JSON.parse(localStorage.getItem('lista_usuarios'))).toHaveLength(1);
+        expect(await screen.findByText(/ya existe un usuario con el correo/i)).toBeInTheDocument();
     });
 });

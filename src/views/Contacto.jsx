@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ContactoService from '../services/ContactoService';
 
 const Contacto = () => {
     const [nombre, setNombre] = useState('');
@@ -9,7 +10,8 @@ const Contacto = () => {
     const [errorCorreo, setErrorCorreo] = useState('');
     const [errorMensaje, setErrorMensaje] = useState('');
     const [popup, setPopup] = useState(null);
-
+    const [errorEnvio, setErrorEnvio] = useState('');
+    const [enviando, setEnviando] = useState(false);
     const mostrarPopup = (titulo, mensaje, accionAlCerrar = null) => {
         setPopup({ titulo, mensaje, alCerrar: accionAlCerrar });
     };
@@ -20,58 +22,96 @@ const Contacto = () => {
         if (accion) accion();
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        let esValido = true;
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    let esValido = true;
 
-        setErrorNombre('');
-        setErrorCorreo('');
-        setErrorMensaje('');
+    setErrorNombre('');
+    setErrorCorreo('');
+    setErrorMensaje('');
+    setErrorEnvio('');
 
-        const nombreTrim = nombre.trim();
-        const correoTrim = correo.trim();
-        const mensajeTrim = mensaje.trim();
+    const nombreTrim = nombre.trim();
+    const correoTrim = correo.trim();
+    const mensajeTrim = mensaje.trim();
 
-        if (nombreTrim === '') {
-            setErrorNombre('El nombre es requerido.');
-            esValido = false;
-        } else if (nombreTrim.length > 100) {
-            setErrorNombre('El nombre no puede superar los 100 caracteres.');
-            esValido = false;
-        }
+    if (nombreTrim === '') {
+        setErrorNombre('El nombre es requerido.');
+        esValido = false;
+    } else if (nombreTrim.length > 100) {
+        setErrorNombre('El nombre no puede superar los 100 caracteres.');
+        esValido = false;
+    }
 
-        const dominiosPermitidos = ['@duoc.cl', '@profesor.duoc.cl', '@gmail.com'];
-        const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const dominiosPermitidos = [
+        '@duoc.cl',
+        '@profesor.duoc.cl',
+        '@gmail.com'
+    ];
 
-        if (correoTrim === '') {
-            setErrorCorreo('El correo es requerido.');
-            esValido = false;
-        } else if (correoTrim.length > 100) {
-            setErrorCorreo('El correo no puede superar los 100 caracteres.');
-            esValido = false;
-        } else if (!correoRegex.test(correoTrim)) {
-            setErrorCorreo('Ingresa un correo válido.');
-            esValido = false;
-        } else if (!dominiosPermitidos.some(dominio => correoTrim.toLowerCase().endsWith(dominio))) {
-            setErrorCorreo('Solo se aceptan correos @duoc.cl, @profesor.duoc.cl o @gmail.com.');
-            esValido = false;
-        }
+    const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (mensajeTrim === '') {
-            setErrorMensaje('El comentario es requerido.');
-            esValido = false;
-        } else if (mensajeTrim.length > 500) {
-            setErrorMensaje('El comentario no puede superar los 500 caracteres.');
-            esValido = false;
-        }
+    if (correoTrim === '') {
+        setErrorCorreo('El correo es requerido.');
+        esValido = false;
+    } else if (correoTrim.length > 100) {
+        setErrorCorreo('El correo no puede superar los 100 caracteres.');
+        esValido = false;
+    } else if (!correoRegex.test(correoTrim)) {
+        setErrorCorreo('Ingresa un correo válido.');
+        esValido = false;
+    } else if (!dominiosPermitidos.some(
+        dominio => correoTrim.toLowerCase().endsWith(dominio)
+    )) {
+        setErrorCorreo(
+            'Solo se aceptan correos @duoc.cl, @profesor.duoc.cl o @gmail.com.'
+        );
+        esValido = false;
+    }
 
-        if (esValido) {
-            mostrarPopup("¡Mensaje Enviado!", "¡Mensaje enviado con éxito!");
-            setNombre('');
-            setCorreo('');
-            setMensaje('');
-        }
-    };
+    if (mensajeTrim === '') {
+        setErrorMensaje('El comentario es requerido.');
+        esValido = false;
+    } else if (mensajeTrim.length > 500) {
+        setErrorMensaje('El comentario no puede superar los 500 caracteres.');
+        esValido = false;
+    }
+
+    if (!esValido) return;
+
+    try {
+        setEnviando(true);
+
+        const datosContacto = {
+            nombre: nombreTrim,
+            correo: correoTrim,
+            mensaje: mensajeTrim
+        };
+
+        await ContactoService.enviarMensaje(datosContacto);
+
+        mostrarPopup(
+            '¡Mensaje Enviado!',
+            '¡Mensaje enviado con éxito!'
+        );
+
+        setNombre('');
+        setCorreo('');
+        setMensaje('');
+
+    } catch (error) {
+        console.error('Error al enviar el mensaje:', error);
+
+        setErrorEnvio(
+            error.response?.data?.mensaje ||
+            error.response?.data?.message ||
+            'No se pudo enviar el mensaje. Inténtalo nuevamente.'
+        );
+
+    } finally {
+        setEnviando(false);
+    }
+};
 
     return (
         <main>
@@ -98,10 +138,21 @@ const Contacto = () => {
                         <textarea className="form-control" id="mensajeContacto" rows="5" maxLength="500" value={mensaje} onChange={(e) => setMensaje(e.target.value)}></textarea>
                         <div className="invalid-feedback d-block text-danger">{errorMensaje}</div>
                     </div>
-                    
-                    <div className="text-center">
-                        <button type="submit" className="btn p-3" style={{ backgroundColor: '#968732', border: 'none' }}><h6>Enviar Mensaje</h6></button>
-                    </div>
+                    {errorEnvio && (
+                        <div className="alert alert-danger text-center">
+                            {errorEnvio}
+                        </div>
+                    )}
+                        <div className="text-center">
+                            <button
+                                type="submit"
+                                className="btn p-3"
+                                style={{ backgroundColor: '#968732', border: 'none' }}
+                                disabled={enviando}
+                            >
+                                <h6>{enviando ? 'Enviando...' : 'Enviar Mensaje'}</h6>
+                            </button>
+                        </div>
                 </form>
             </div>
 

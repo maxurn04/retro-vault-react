@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import EditarCategoria from '../../views/admin/editarcategoria';
+import AdminService from '../../services/AdminService';
 
 const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));
 
@@ -10,32 +11,41 @@ vi.mock('react-router-dom', async (importOriginal) => ({
     useNavigate: () => navigateMock
 }));
 
+vi.mock('../../services/AdminService', () => ({
+    default: { buscarCategoriaPorNombre: vi.fn(), actualizarCategoria: vi.fn() }
+}));
+
+const renderizar = (nombre) =>
+    render(
+        <MemoryRouter initialEntries={[`/admin/categorias/editar/${nombre}`]}>
+            <Routes>
+                <Route path="/admin/categorias/editar/:nombre" element={<EditarCategoria />} />
+            </Routes>
+        </MemoryRouter>
+    );
+
 describe('vista admin de editar categoría', () => {
     beforeEach(() => {
-        localStorage.clear();
-        localStorage.setItem('categorias_retro', JSON.stringify(['Consolas', 'Juegos']));
-        localStorage.setItem('catalogo_retro', JSON.stringify([
-            { id: 1, nombre: 'Zelda 64', categoria: 'Juegos' },
-            { id: 2, nombre: 'PlayStation 2', categoria: 'Consolas' }
-        ]));
-        navigateMock.mockClear();
+        vi.clearAllMocks();
     });
 
-    it('renombra la categoría y actualiza también los productos que la usan', () => {
-        render(
-            <MemoryRouter initialEntries={['/admin/categorias/editar/Juegos']}>
-                <Routes>
-                    <Route path="/admin/categorias/editar/:nombre" element={<EditarCategoria />} />
-                </Routes>
-            </MemoryRouter>
-        );
+    it('busca la categoría por nombre y la renombra en el backend', async () => {
+        AdminService.buscarCategoriaPorNombre.mockResolvedValue({ id: 2, nombre: 'Juegos', descripcion: 'd' });
+        AdminService.actualizarCategoria.mockResolvedValue({});
+        renderizar('Juegos');
+        await act(async () => {});
+        expect(AdminService.buscarCategoriaPorNombre).toHaveBeenCalledWith('Juegos');
+
         fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Videojuegos' } });
         fireEvent.click(screen.getByRole('button', { name: /actualizar/i }));
 
-        expect(JSON.parse(localStorage.getItem('categorias_retro'))).toEqual(['Consolas', 'Videojuegos']);
-        const catalogo = JSON.parse(localStorage.getItem('catalogo_retro'));
-        expect(catalogo[0].categoria).toBe('Videojuegos');
-        expect(catalogo[1].categoria).toBe('Consolas');
-        expect(navigateMock).toHaveBeenCalledWith('/admin/categorias');
+        await vi.waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/admin/categorias'));
+        expect(AdminService.actualizarCategoria).toHaveBeenCalledWith(2, { id: 2, nombre: 'Videojuegos', descripcion: 'd' });
+    });
+
+    it('vuelve al listado si la categoría no existe', async () => {
+        AdminService.buscarCategoriaPorNombre.mockRejectedValue({ response: { status: 404 } });
+        renderizar('Nada');
+        await vi.waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/admin/categorias'));
     });
 });

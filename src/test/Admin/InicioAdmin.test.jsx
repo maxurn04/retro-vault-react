@@ -1,34 +1,47 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import InicioAdmin from '../../views/admin/inicioadmin';
+import AdminService from '../../services/AdminService';
+
+vi.mock('../../services/AdminService', () => ({
+    default: { obtenerMetricasDashboard: vi.fn() }
+}));
+
+const metricas = {
+    totalCompras: 7, ingresosTotales: 150000, productosInventario: 3,
+    stockTotalUnidades: 30, usuariosRegistrados: 2, productosCriticosAlerta: 4
+};
 
 describe('vista admin del dashboard', () => {
     beforeEach(() => {
-        localStorage.clear();
-        localStorage.setItem('catalogo_retro', JSON.stringify([
-            { id: 1, nombre: 'A', stock: 5 },
-            { id: 2, nombre: 'B', stock: 10 },
-            { id: 3, nombre: 'C', stock: 15 }
-        ]));
-        localStorage.setItem('lista_usuarios', JSON.stringify([{ run: '1' }, { run: '2' }]));
+        vi.clearAllMocks();
     });
 
-    it('muestra la cantidad de productos y el inventario total del catálogo', () => {
+    it('muestra compras e ingresos totales del backend', async () => {
+        AdminService.obtenerMetricasDashboard.mockResolvedValue(metricas);
         render(<MemoryRouter><InicioAdmin /></MemoryRouter>);
-        expect(screen.getByText('3')).toBeInTheDocument();
+        expect(await screen.findByText('7')).toBeInTheDocument();
+        expect(screen.getByText('CLP$150.000')).toBeInTheDocument();
+    });
+
+    it('muestra la cantidad de productos y el inventario total', async () => {
+        AdminService.obtenerMetricasDashboard.mockResolvedValue(metricas);
+        render(<MemoryRouter><InicioAdmin /></MemoryRouter>);
+        expect(await screen.findByText('3')).toBeInTheDocument();
         expect(screen.getByText('30')).toBeInTheDocument();
     });
 
-    it('muestra la cantidad de usuarios registrados', () => {
+    it('muestra usuarios registrados y productos en stock crítico', async () => {
+        AdminService.obtenerMetricasDashboard.mockResolvedValue(metricas);
         render(<MemoryRouter><InicioAdmin /></MemoryRouter>);
-        expect(screen.getByText('2')).toBeInTheDocument();
+        expect(await screen.findByText('2')).toBeInTheDocument();
+        expect(screen.getByText('4')).toBeInTheDocument();
     });
 
-    it('muestra 0 en productos, inventario y usuarios cuando no hay datos guardados', () => {
-    localStorage.setItem('catalogo_retro', JSON.stringify([]));
-    localStorage.setItem('lista_usuarios', JSON.stringify([]));
-    render(<MemoryRouter><InicioAdmin /></MemoryRouter>);
-    expect(screen.getAllByText('0')).toHaveLength(3);
+    it('muestra un aviso si no se pueden cargar las métricas', async () => {
+        AdminService.obtenerMetricasDashboard.mockRejectedValue(new Error('fallo'));
+        render(<MemoryRouter><InicioAdmin /></MemoryRouter>);
+        expect(await screen.findByText(/no se pudieron cargar las métricas/i)).toBeInTheDocument();
     });
 });

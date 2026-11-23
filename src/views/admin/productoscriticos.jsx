@@ -1,10 +1,16 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { obtenerCatalogo } from '../../data/catalogoAdmin';
-
-const LIMITE_CRITICO = 2;
+import AdminService from '../../services/AdminService';
 
 const ProductosCriticos = () => {
-    const criticos = obtenerCatalogo().filter((p) => Number(p.stock) < LIMITE_CRITICO);
+    const [criticos, setCriticos] = useState([]);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        AdminService.obtenerProductosCriticos()
+            .then(setCriticos)
+            .catch(() => setError('No se pudieron cargar los productos críticos.'));
+    }, []);
 
     return (
         <main className="col-12 col-md-9 col-xl-10 p-4 admin-contenido-principal">
@@ -14,6 +20,8 @@ const ProductosCriticos = () => {
                 </h2>
                 <Link to="/admin/mostrarproductos" className="btn admin-btn-nuevo">Volver a Productos</Link>
             </div>
+
+            {error && <div className="alert alert-danger">{error}</div>}
 
             <div className="p-4 admin-caja-tabla">
                 <div className="admin-ancho-tabla">
@@ -39,10 +47,10 @@ const ProductosCriticos = () => {
                                 </span>
                             </div>
                             <div className="col-2">
-                                <img src={producto.img} alt={producto.nombre} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '5px' }} />
+                                <img src={producto.imagenUrl} alt={producto.nombre} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '5px' }} />
                             </div>
                             <div className="col-3">{producto.nombre}</div>
-                            <div className="col-2">{producto.categoria}</div>
+                            <div className="col-2">{producto.categoria?.nombre}</div>
                             <div className="col-2 text-center">
                                 <Link to={`/admin/editarprod/${producto.id}`} className="btn admin-btn-nuevo btn-sm w-100" style={{ padding: '4px 8px', fontSize: '0.85rem' }}>
                                     Reponer

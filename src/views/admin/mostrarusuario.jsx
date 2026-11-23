@@ -1,40 +1,63 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import AdminService from '../../services/AdminService';
 const vacio = {
     run: '', nombre: '', apellidos: '', correo: '', contra: '',
     telefono: '', fechaNacimiento: '', direccion: '', region: '', comuna: ''
 };
 
 const MostrarUsuarios = () => {
-    const [usuarios, setUsuarios] = useState(() => JSON.parse(localStorage.getItem('lista_usuarios')) || []);
+    const [usuarios, setUsuarios] = useState([]);
     const [form, setForm] = useState(vacio);
     const [indice, setIndice] = useState('');
     const [aviso, setAviso] = useState(null)
 
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-    const seleccionar = (user, i) => {
-        setForm({ ...vacio, ...user });
-        setIndice(i);
+    useEffect(() => {
+        AdminService.listarUsuarios()
+            .then(setUsuarios)
+            .catch(() => setAviso({ tipo: 'danger', texto: 'No se pudieron cargar los usuarios.' }));
+    }, []);
+
+    const seleccionar = (user) => {
+        setForm({ ...vacio, ...user, contra: '', direccion: user.direccionDefecto || '' });
+        setIndice(user.id);
     };
 
-    const guardarCambios = () => {
+    const guardarCambios = async () => {
         if (indice === '') return;
-        const lista = [...usuarios];
-        lista[indice] = { ...lista[indice], ...form };
-        localStorage.setItem('lista_usuarios', JSON.stringify(lista));
-        setUsuarios(lista);
-        setAviso({ tipo: 'success', texto: 'Usuario editado.' });
+        const datos = {
+            run: form.run,
+            nombre: form.nombre,
+            apellidos: form.apellidos,
+            telefono: form.telefono,
+            fechaNacimiento: form.fechaNacimiento,
+            region: form.region,
+            comuna: form.comuna,
+            direccionDefecto: form.direccion
+        };
+        if (form.contra !== '') datos.password = form.contra;
+        try {
+            const actualizado = await AdminService.actualizarUsuario(indice, datos);
+            setUsuarios((lista) => lista.map((u) => (u.id === indice ? actualizado : u)));
+            setAviso({ tipo: 'success', texto: 'Usuario editado.' });
+        } catch (e) {
+            setAviso({ tipo: 'danger', texto: e.response?.data?.error || 'No se pudo editar el usuario.' });
+        }
     };
 
-    const borrarUsuario = () => {
+    const borrarUsuario = async () => {
         if (indice === '') return;
-        const lista = usuarios.filter((_, i) => i !== indice);
-        localStorage.setItem('lista_usuarios', JSON.stringify(lista));
-        setUsuarios(lista);
-        setForm(vacio);
-        setIndice('');
-        setAviso({ tipo: 'success', texto: 'Usuario borrado.' });
+        try {
+            await AdminService.eliminarUsuario(indice);
+            setUsuarios((lista) => lista.filter((u) => u.id !== indice));
+            setForm(vacio);
+            setIndice('');
+            setAviso({ tipo: 'success', texto: 'Usuario borrado.' });
+        } catch (e) {
+            setAviso({ tipo: 'danger', texto: e.response?.data?.error || 'No se pudo borrar el usuario.' });
+        }
     };
 
     return (
@@ -137,13 +160,13 @@ const MostrarUsuarios = () => {
                         <div className="col-2">direccion</div>
                     </div>
 
-                    {usuarios.map((user, i) => (
-                        <div key={i} className="row mb-2 pb-2" style={{ cursor: 'pointer' }} onClick={() => seleccionar(user, i)}>
+                    {usuarios.map((user) => (
+                        <div key={user.id} className="row mb-2 pb-2" style={{ cursor: 'pointer' }} onClick={() => seleccionar(user)}>
                             <div className="col-2">{user.run}</div>
                             <div className="col-3">{user.nombre} {user.apellidos}</div>
                             <div className="col-2">{user.correo}</div>
                             <div className="col-3">{user.telefono}</div>
-                            <div className="col-2">{user.direccion}</div>
+                            <div className="col-2">{user.direccionDefecto}</div>
                         </div>
                     ))}
                 </div>

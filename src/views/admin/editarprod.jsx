@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { obtenerCatalogo, guardarCatalogo, obtenerCategorias } from '../../data/catalogoAdmin';
+import AdminService from '../../services/AdminService';
 
 const EditarProd = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const categorias = obtenerCategorias();
+    const [categorias, setCategorias] = useState([]);
+    const [original, setOriginal] = useState(null);
     const [aviso, setAviso] = useState(null);
     const [noEncontrado, setNoEncontrado] = useState(false);
     const mostrarError = (texto) => setAviso({ tipo: 'danger', texto });    
@@ -14,26 +15,35 @@ const EditarProd = () => {
     });
 
     useEffect(() => {
-        const producto = obtenerCatalogo().find((p) => p.id === parseInt(id));
-        if (!producto) {
-            setNoEncontrado(true);
-            return;
-        }
-        setForm({
-            nombre: producto.nombre,
-            codigo: producto.codigo || '',
-            precio: producto.precio,
-            stock: producto.stock || 0,
-            stockCritico: producto.stockCritico || '',
-            desc: producto.desc || '',
-            categoria: producto.categoria || '',
-            img: producto.img || ''
-        });
-    }, [id, navigate]);
+        const cargar = async () => {
+            try {
+                const [producto, listaCategorias] = await Promise.all([
+                    AdminService.obtenerProductoPorId(id),
+                    AdminService.listarCategorias()
+                ]);
+                setCategorias(listaCategorias);
+                setOriginal(producto);
+                setForm({
+                    nombre: producto.nombre,
+                    codigo: producto.codigo || '',
+                    precio: producto.precio,
+                    stock: producto.stock || 0,
+                    stockCritico: producto.stockCritico || '',
+                    desc: producto.descripcion || '',
+                    categoria: producto.categoria?.id ?? '',
+                    img: producto.imagenUrl || ''
+                });
+            } catch {
+                setNoEncontrado(true);
+            }
+        };
+
+        cargar();
+    }, [id]);
 
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const codigo = form.codigo.trim();
@@ -70,15 +80,23 @@ const EditarProd = () => {
             return;
         }
 
-        const catalogo = obtenerCatalogo().map((p) =>
-            p.id === parseInt(id)
-                ? { ...p, codigo, nombre, desc, precio, stock, stockCritico, categoria: form.categoria, img }
-                : p
-        );
-
-        guardarCatalogo(catalogo);
-        setAviso({ tipo: 'success', texto: '¡Producto actualizado con éxito!' });
-        setTimeout(() => navigate('/admin/mostrarproductos'), 1500);
+        try {
+            await AdminService.actualizarProducto(id, {
+                ...original,
+                codigo,
+                nombre,
+                descripcion: desc,
+                precio,
+                stock,
+                stockCritico,
+                imagenUrl: img,
+                categoria: { id: Number(form.categoria) }
+            });
+            setAviso({ tipo: 'success', texto: '¡Producto actualizado con éxito!' });
+            setTimeout(() => navigate('/admin/mostrarproductos'), 1500);
+        } catch (error) {
+            mostrarError(error.response?.data?.error || 'No se pudo actualizar el producto.');
+        }
     };
     if (noEncontrado) {
         return (
@@ -132,7 +150,7 @@ const EditarProd = () => {
                             <label className="form-label text-uppercase admin-etiqueta-form">- Seleccione la categoría -</label>
                             <select name="categoria" className="form-select rounded-0 border-dark" required value={form.categoria} onChange={handleChange}>
                                 <option value="">Seleccione una categoría...</option>
-                                {categorias.map((cat) => (<option key={cat} value={cat}>{cat}</option>))}
+                                {categorias.map((cat) => (<option key={cat.id} value={cat.id}>{cat.nombre}</option>))}
                             </select>
                         </div>
                         <div className="col-12 col-md-6">

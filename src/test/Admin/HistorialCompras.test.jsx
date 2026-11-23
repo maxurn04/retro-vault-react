@@ -1,21 +1,23 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import HistorialCompras from '../../views/admin/historialcompras';
+import AdminService from '../../services/AdminService';
+
+vi.mock('../../services/AdminService', () => ({
+    default: { listarUsuarios: vi.fn(), listarHistorialCompras: vi.fn() }
+}));
 
 const usuarios = [
-    { nombre: 'Ana', apellidos: 'Pérez', correo: 'ana@gmail.com' },
-    { nombre: 'Luis', apellidos: 'Soto', correo: 'luis@gmail.com' }
+    { id: 1, nombre: 'Ana', apellidos: 'Pérez', correo: 'ana@gmail.com' },
+    { id: 2, nombre: 'Luis', apellidos: 'Soto', correo: 'luis@gmail.com' }
 ];
 
-const boleta = (numero, correo, total) => ({
-    numero, fecha: '12-10-2026', metodoPago: 'Mercado Pago',
-    cliente: { nombre: 'X', apellidos: 'Y', correo }, productos: [], total
-});
+const orden = (id, numeroOrden, total) => ({ id, numeroOrden, fecha: '2026-10-12T10:00:00', metodoPago: 'Mercado Pago', total });
 
-const renderizar = (indice) =>
+const renderizar = (id) =>
     render(
-        <MemoryRouter initialEntries={[`/admin/historial/${indice}`]}>
+        <MemoryRouter initialEntries={[`/admin/historial/${id}`]}>
             <Routes>
                 <Route path="/admin/historial/:indice" element={<HistorialCompras />} />
             </Routes>
@@ -24,31 +26,27 @@ const renderizar = (indice) =>
 
 describe('vista admin de historial de compras', () => {
     beforeEach(() => {
-        localStorage.clear();
-        localStorage.setItem('lista_usuarios', JSON.stringify(usuarios));
+        vi.clearAllMocks();
+        AdminService.listarUsuarios.mockResolvedValue(usuarios);
     });
 
-    it('muestra solo las compras del usuario y suma el total gastado', () => {
-        localStorage.setItem('boletas', JSON.stringify([
-            boleta(1001, 'ana@gmail.com', 60000),
-            boleta(1002, 'ANA@gmail.com', 40000),
-            boleta(2001, 'luis@gmail.com', 99999)
-        ]));
-        renderizar(0);
-        expect(screen.getByText('1001')).toBeInTheDocument();
-        expect(screen.getByText('1002')).toBeInTheDocument();
-        expect(screen.queryByText('2001')).not.toBeInTheDocument();
-        expect(screen.getByText('CLP$100000')).toBeInTheDocument();
-    });
-
-    it('muestra un mensaje cuando el usuario no tiene compras', () => {
-        localStorage.setItem('boletas', JSON.stringify([boleta(1001, 'ana@gmail.com', 60000)]));
+    it('muestra las compras del usuario y suma el total gastado', async () => {
+        AdminService.listarHistorialCompras.mockResolvedValue([orden(1, 'ORD-1001', 60000), orden(2, 'ORD-1002', 40000)]);
         renderizar(1);
-        expect(screen.getByText(/aún no tiene compras/i)).toBeInTheDocument();
+        expect(await screen.findByText('ORD-1001')).toBeInTheDocument();
+        expect(screen.getByText('ORD-1002')).toBeInTheDocument();
+        expect(screen.getByText('CLP$100000')).toBeInTheDocument();
+        expect(AdminService.listarHistorialCompras).toHaveBeenCalledWith(1);
     });
 
-    it('muestra un aviso cuando el usuario no existe', () => {
+    it('muestra un mensaje cuando el usuario no tiene compras', async () => {
+        AdminService.listarHistorialCompras.mockResolvedValue([]);
+        renderizar(2);
+        expect(await screen.findByText(/aún no tiene compras/i)).toBeInTheDocument();
+    });
+
+    it('muestra un aviso cuando el usuario no existe', async () => {
         renderizar(9);
-        expect(screen.getByText(/usuario no encontrado/i)).toBeInTheDocument();
+        expect(await screen.findByText(/usuario no encontrado/i)).toBeInTheDocument();
     });
 });

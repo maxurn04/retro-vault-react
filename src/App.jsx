@@ -40,6 +40,7 @@ import Reportes from './views/admin/reportes';
 import Perfil from './views/admin/perfil';
 import ProductosCriticos from './views/admin/productoscriticos';
 import HistorialCompras from './views/admin/historialcompras';
+import MostrarMensajes from './views/admin/mostrarmensajes';
 
 import './App.css';
 
@@ -76,6 +77,7 @@ const App = () => {
           <Route path="editarusuario/:indice" element={<EditarUsuario />} />
           <Route path="mostrarusuario" element={<MostrarUsuarios />} />
           <Route path="boletas" element={<MostrarBoletas />} />
+          <Route path="mensajes" element={<MostrarMensajes />} />
           <Route path="boletas/:numero" element={<DetalleBoleta key="ver" />} />
           <Route path="boletas/:numero/editar" element={<DetalleBoleta key="editar" editable />} />
           <Route path="categorias" element={<MostrarCategorias />} />

@@ -1,37 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { obtenerCatalogo, guardarCatalogo, obtenerCategorias } from '../../data/catalogoAdmin';
+import AdminService from '../../services/AdminService';
 
 const CrearProd = () => {
     const navigate = useNavigate();
     const [aviso, setAviso] = useState(null);
-    const categorias = obtenerCategorias();
+    const [categorias, setCategorias] = useState([]);
     const [form, setForm] = useState({
         nombre: '', codigo: '', precio: '', stock: '', stockCritico: '', desc: '', categoria: '', img: ''
     });
 
+    useEffect(() => {
+        AdminService.listarCategorias()
+            .then(setCategorias)
+            .catch(() => setAviso({ tipo: 'danger', texto: 'No se pudieron cargar las categorías.' }));
+    }, []);
+
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const catalogo = obtenerCatalogo();
-        const nuevoId = catalogo.length > 0 ? Number(catalogo[catalogo.length - 1].id) + 1 : 1;
 
-        catalogo.push({
-            id: nuevoId,
-            codigo: form.codigo,
-            nombre: form.nombre,
-            desc: form.desc,
-            precio: parseFloat(form.precio),
-            stock: parseInt(form.stock),
-            stockCritico: parseInt(form.stockCritico) || 0,
-            categoria: form.categoria,
-            img: form.img === '' ? '/img/tiendaplaceholde.png' : form.img
-        });
-
-        guardarCatalogo(catalogo);
-        setAviso({ tipo: 'success', texto: 'Producto creado.' });
-        setTimeout(() => navigate('/admin/mostrarproductos'), 1500);
+        try {
+            await AdminService.crearProducto({
+                codigo: form.codigo,
+                nombre: form.nombre,
+                descripcion: form.desc,
+                precio: parseFloat(form.precio),
+                stock: parseInt(form.stock),
+                stockCritico: parseInt(form.stockCritico) || 0,
+                imagenUrl: form.img === '' ? '/img/tiendaplaceholde.png' : form.img,
+                categoria: { id: Number(form.categoria) }
+            });
+            setAviso({ tipo: 'success', texto: 'Producto creado.' });
+            setTimeout(() => navigate('/admin/mostrarproductos'), 1500);
+        } catch (error) {
+            setAviso({ tipo: 'danger', texto: error.response?.data?.error || 'No se pudo crear el producto.' });
+        }
     };
 
     return (
@@ -77,9 +82,7 @@ const CrearProd = () => {
                             <label className="form-label text-uppercase admin-etiqueta-form">- Seleccione la categoría -</label>
                             <select name="categoria" className="form-select rounded-0 border-dark" required value={form.categoria} onChange={handleChange}>
                                 <option value="">Seleccione una categoría...</option>
-                                <option value="Consolas">Consolas</option>
-                                <option value="Juegos">Juegos</option>
-                                <option value="Accesorios">Accesorios</option>
+                                {categorias.map((cat) => (<option key={cat.id} value={cat.id}>{cat.nombre}</option>))}
                             </select>
                         </div>
                         <div className="col-12 col-md-6">
