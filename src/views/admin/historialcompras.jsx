@@ -1,9 +1,35 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import AdminService from '../../services/AdminService';
 
 const HistorialCompras = () => {
     const { indice } = useParams();
-    const usuarios = JSON.parse(localStorage.getItem('lista_usuarios')) || [];
-    const usuario = usuarios[indice];
+    const [usuario, setUsuario] = useState(null);
+    const [boletas, setBoletas] = useState([]);
+    const [cargando, setCargando] = useState(true);
+
+    useEffect(() => {
+        const cargar = async () => {
+            try {
+                const usuarios = await AdminService.listarUsuarios();
+                const encontrado = usuarios.find((u) => String(u.id) === indice);
+                if (encontrado) {
+                    setUsuario(encontrado);
+                    setBoletas(await AdminService.listarHistorialCompras(encontrado.id));
+                }
+            } catch (e) {
+                console.error('Error al cargar el historial:', e);
+            } finally {
+                setCargando(false);
+            }
+        };
+
+        cargar();
+    }, [indice]);
+
+    if (cargando) {
+        return <div className="col p-4">Cargando historial...</div>;
+    }
 
     if (!usuario) {
         return (
@@ -15,9 +41,6 @@ const HistorialCompras = () => {
         );
     }
 
-    const boletas = (JSON.parse(localStorage.getItem('boletas')) || []).filter(
-        (b) => b.cliente?.correo?.toLowerCase() === usuario.correo.toLowerCase()
-    );
     const totalGastado = boletas.reduce((suma, b) => suma + Number(b.total), 0);
 
     return (
@@ -63,13 +86,13 @@ const HistorialCompras = () => {
                     )}
 
                     {boletas.map((b) => (
-                        <div key={b.numero} className="row align-items-center mb-2 pb-2" style={{ borderBottom: '1px solid #cccccc', color: '#333333' }}>
-                            <div className="col-2">{b.numero}</div>
-                            <div className="col-3">{b.fecha}</div>
+                        <div key={b.id} className="row align-items-center mb-2 pb-2" style={{ borderBottom: '1px solid #cccccc', color: '#333333' }}>
+                            <div className="col-2">{b.numeroOrden}</div>
+                            <div className="col-3">{b.fecha ? new Date(b.fecha).toLocaleDateString('es-CL') : ''}</div>
                             <div className="col-3">{b.metodoPago}</div>
                             <div className="col-2">CLP${b.total}</div>
                             <div className="col-2 text-center">
-                                <Link to={`/admin/boletas/${b.numero}`} className="btn admin-btn-nuevo btn-sm w-100" style={{ padding: '4px 8px', fontSize: '0.85rem' }}>
+                                <Link to={`/admin/boletas/${encodeURIComponent(b.numeroOrden)}`} className="btn admin-btn-nuevo btn-sm w-100" style={{ padding: '4px 8px', fontSize: '0.85rem' }}>
                                     Ver boleta
                                 </Link>
                             </div>

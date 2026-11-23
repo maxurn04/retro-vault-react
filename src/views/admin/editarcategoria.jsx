@@ -1,32 +1,29 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { obtenerCatalogo, guardarCatalogo, obtenerCategorias, guardarCategorias } from '../../data/catalogoAdmin';
+import AdminService from '../../services/AdminService';
 
 const EditarCategoria = () => {
     const { nombre: original } = useParams();
     const navigate = useNavigate();
     const [nombre, setNombre] = useState(original);
     const [error, setError] = useState('');
+    const [categoria, setCategoria] = useState(null);
 
     useEffect(() => {
-        if (!obtenerCategorias().includes(original)) {
-            navigate('/admin/categorias');
-        }
+        AdminService.buscarCategoriaPorNombre(original)
+            .then(setCategoria)
+            .catch(() => navigate('/admin/categorias'));
     }, [original, navigate]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const limpio = nombre.trim();
-        const categorias = obtenerCategorias();
 
-        if (categorias.some((c) => c !== original && c.toLowerCase() === limpio.toLowerCase())) {
-            setError('Ya existe una categoría con ese nombre.');
-            return;
+        try {
+            await AdminService.actualizarCategoria(categoria.id, { ...categoria, nombre: nombre.trim() });
+            navigate('/admin/categorias');
+        } catch (err) {
+            setError(err.response?.data?.error || 'No se pudo actualizar la categoría.');
         }
-
-        guardarCategorias(categorias.map((c) => (c === original ? limpio : c)));
-        guardarCatalogo(obtenerCatalogo().map((p) => (p.categoria === original ? { ...p, categoria: limpio } : p)));
-        navigate('/admin/categorias');
     };
 
     return (

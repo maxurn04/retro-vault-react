@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { datosUbicacion } from '../Registro';
+import AdminService from '../../services/AdminService';
 
 const CrearUsuario = () => {
     const [form, setForm] = useState({
@@ -12,7 +13,7 @@ const CrearUsuario = () => {
 
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const run = form.run.trim().toUpperCase();
@@ -48,28 +49,24 @@ const CrearUsuario = () => {
             return;
         }
 
-        const usuarios = JSON.parse(localStorage.getItem('lista_usuarios')) || [];
-        if (usuarios.find((user) => user.correo.toLowerCase() === correo)) {
-            mostrarError('Ya existe un usuario registrado con este correo.');
-            return;
+        try {
+            await AdminService.crearUsuario({
+                run,
+                nombre,
+                apellidos,
+                correo,
+                password: passw,
+                telefono,
+                fechaNacimiento: form.fecha,
+                direccionDefecto: direccion,
+                region: datosUbicacion[indiceRegion].region,
+                comuna,
+                rol: 'CLIENTE'
+            });
+            setAviso({ tipo: 'success', texto: 'Usuario creado con éxito.' });
+        } catch (error) {
+            mostrarError(error.response?.data?.error || 'No se pudo crear el usuario.');
         }
-
-        usuarios.push({
-            run,
-            nombre,
-            apellidos,
-            correo,
-            contra: passw,
-            telefono,
-            fechaNacimiento: form.fecha,
-            direccion,
-            region: datosUbicacion[indiceRegion].region,
-            comuna,
-            tipo: 'Cliente'
-        });
-
-        localStorage.setItem('lista_usuarios', JSON.stringify(usuarios));
-        setAviso({ tipo: 'success', texto: 'Usuario creado con éxito.' });
     };
 
     return (

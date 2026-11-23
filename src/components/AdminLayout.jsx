@@ -38,6 +38,11 @@ const AdminLayout = () => {
                                 <NavLink to="/admin/mostrarusuario" className={clase}><i className="bi bi-people"></i>Usuarios</NavLink>
                             </li>
                             <li className="nav-item">
+                                <NavLink to="/admin/mensajes" className={clase}>
+                                    <i className="bi bi-envelope"></i>Mensajes
+                                </NavLink>
+                            </li>
+                            <li className="nav-item">
                                 <NavLink to="/admin/reportes" className={clase}><i className="bi bi-graph-up"></i>Reportes</NavLink>
                             </li>
                         </ul>

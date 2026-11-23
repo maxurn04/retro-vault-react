@@ -41,6 +41,11 @@ class AdminService {
         return response.data;
     }
 
+    async buscarCategoriaPorNombre(nombre) {
+        const response = await adminApi.get(`/categorias/nombre/${encodeURIComponent(nombre)}`);
+        return response.data;
+    }
+
     async crearCategoria(categoria) {
         const response = await adminApi.post('/categorias', categoria);
         return response.data;
@@ -87,7 +92,7 @@ class AdminService {
     }
 
     async obtenerOrdenPorNumero(numero) {
-        const response = await adminApi.get(`/ordenes/numero/${numero}`);
+        const response = await adminApi.get(`/ordenes/numero/${encodeURIComponent(numero)}`);
         return response.data;
     }
 
@@ -103,3 +108,5 @@ class AdminService {
 }
 
 export default new AdminService();
+
+

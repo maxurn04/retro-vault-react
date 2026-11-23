@@ -1,12 +1,16 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ProductosCriticos from '../../views/admin/productoscriticos';
+import AdminService from '../../services/AdminService';
 
-const catalogo = [
-    { id: 1, nombre: 'Consola Agotada', stock: 0, categoria: 'Consolas', img: '/a.jpg', precio: 1000 },
-    { id: 2, nombre: 'Juego Ultima Unidad', stock: 1, categoria: 'Juegos', img: '/b.jpg', precio: 2000 },
-    { id: 3, nombre: 'Mando Con Stock', stock: 10, categoria: 'Accesorios', img: '/c.jpg', precio: 3000 }
+vi.mock('../../services/AdminService', () => ({
+    default: { obtenerProductosCriticos: vi.fn() }
+}));
+
+const criticos = [
+    { id: 1, nombre: 'Consola Agotada', stock: 0, categoria: { id: 1, nombre: 'Consolas' }, imagenUrl: '/a.jpg', precio: 1000 },
+    { id: 2, nombre: 'Juego Ultima Unidad', stock: 1, categoria: { id: 2, nombre: 'Juegos' }, imagenUrl: '/b.jpg', precio: 2000 }
 ];
 
 const renderizar = () =>
@@ -18,26 +22,26 @@ const renderizar = () =>
 
 describe('vista admin de productos críticos', () => {
     beforeEach(() => {
-        localStorage.clear();
+        vi.clearAllMocks();
     });
 
-    it('lista solo los productos con stock menor a 2', () => {
-        localStorage.setItem('catalogo_retro', JSON.stringify(catalogo));
+    it('lista los productos críticos que entrega el backend', async () => {
+        AdminService.obtenerProductosCriticos.mockResolvedValue(criticos);
         renderizar();
-        expect(screen.getByText('Consola Agotada')).toBeInTheDocument();
+        expect(await screen.findByText('Consola Agotada')).toBeInTheDocument();
         expect(screen.getByText('Juego Ultima Unidad')).toBeInTheDocument();
-        expect(screen.queryByText('Mando Con Stock')).not.toBeInTheDocument();
+        expect(screen.getByText('Juegos')).toBeInTheDocument();
     });
 
-    it('muestra la etiqueta Agotado cuando el stock es 0', () => {
-        localStorage.setItem('catalogo_retro', JSON.stringify(catalogo));
+    it('muestra la etiqueta Agotado cuando el stock es 0', async () => {
+        AdminService.obtenerProductosCriticos.mockResolvedValue(criticos);
         renderizar();
-        expect(screen.getByText('Agotado')).toBeInTheDocument();
+        expect(await screen.findByText('Agotado')).toBeInTheDocument();
     });
 
-    it('muestra un mensaje cuando no hay productos críticos', () => {
-        localStorage.setItem('catalogo_retro', JSON.stringify([catalogo[2]]));
+    it('muestra un mensaje cuando no hay productos críticos', async () => {
+        AdminService.obtenerProductosCriticos.mockResolvedValue([]);
         renderizar();
-        expect(screen.getByText(/no hay productos con stock crítico/i)).toBeInTheDocument();
+        expect(await screen.findByText(/no hay productos con stock crítico/i)).toBeInTheDocument();
     });
 });

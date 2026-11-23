@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { obtenerCatalogo } from '../../data/catalogoAdmin';
+import AdminService from '../../services/AdminService';
 
 const accesos = [
     { titulo: 'Dashboard', texto: 'Visión general de todas las métricas y estadísticas clave del sistema.', icono: 'bi-speedometer2', ruta: '/admin' },
@@ -13,21 +14,30 @@ const accesos = [
 ];
 
 const InicioAdmin = () => {
-    const catalogo = obtenerCatalogo();
-    const totalProductos = catalogo.length;
-    const inventarioTotal = catalogo.reduce((suma, p) => suma + (Number(p.stock) || 0), 0);
-    const totalUsuarios = (JSON.parse(localStorage.getItem('lista_usuarios')) || []).length;
+    const [metricas, setMetricas] = useState({
+        totalCompras: 0, ingresosTotales: 0, productosInventario: 0,
+        stockTotalUnidades: 0, usuariosRegistrados: 0, productosCriticosAlerta: 0
+    });
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        AdminService.obtenerMetricasDashboard()
+            .then(setMetricas)
+            .catch(() => setError('No se pudieron cargar las métricas.'));
+    }, []);
 
     const resumen = [
-        { titulo: 'Compras', valor: '1,234', pie: 'Probabilidad de aumento:', dato: '20%', clase: 'bg-primary', icono: 'bi-cart4' },
-        { titulo: 'Productos', valor: totalProductos, pie: 'Inventario actual:', dato: inventarioTotal, clase: 'bg-success', icono: 'bi-box-seam' },
-        { titulo: 'Usuarios', valor: totalUsuarios, pie: 'Nuevos usuarios este mes:', dato: '120', clase: 'bg-warning', icono: 'bi-people-fill' }
+        { titulo: 'Compras', valor: metricas.totalCompras, pie: 'Ingresos totales:', dato: `CLP$${Number(metricas.ingresosTotales).toLocaleString('es-CL')}`, clase: 'bg-primary', icono: 'bi-cart4' },
+        { titulo: 'Productos', valor: metricas.productosInventario, pie: 'Inventario actual:', dato: metricas.stockTotalUnidades, clase: 'bg-success', icono: 'bi-box-seam' },
+        { titulo: 'Usuarios', valor: metricas.usuariosRegistrados, pie: 'Productos en stock crítico:', dato: metricas.productosCriticosAlerta, clase: 'bg-warning', icono: 'bi-people-fill' }
     ];
 
     return (
         <main className="col-12 col-md-9 col-xl-10 p-4 bg-light" style={{ minHeight: '100vh' }}>
             <h1 className="fs-4 fw-semibold mb-0">Dashboard</h1>
             <p className="small text-muted mb-4">Resumen de las actividades diarias</p>
+
+            {error && <div className="alert alert-danger">{error}</div>}
 
             <div className="row g-4 mb-4 justify-content-center">
                 {resumen.map((r) => (
@@ -68,3 +78,4 @@ const InicioAdmin = () => {
 };
 
 export default InicioAdmin;
+

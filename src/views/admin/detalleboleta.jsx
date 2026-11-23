@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import OrdenesService from '../../services/OrdenesService';
+import AdminService from '../../services/AdminService';
 
 const Campo = ({ etiqueta, name, valor, onChange, editable, tipo = 'text', requerido = false, col = 'col-12 col-md-6' }) => (
     <div className={`${col} mb-3`}>
@@ -23,9 +23,10 @@ const DetalleBoleta = ({ editable = false }) => {
     const [boleta, setBoleta] = useState(null);
     const [guardada, setGuardada] = useState(false);
     const [noEncontrado, setNoEncontrado] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
-        OrdenesService.obtenerBoleta(numero)
+        AdminService.obtenerOrdenPorNumero(numero)
             .then((data) => {
                 if (!data) {
                     setNoEncontrado(true);
@@ -69,31 +70,29 @@ const DetalleBoleta = ({ editable = false }) => {
     const cambiarCliente = (e) =>
         setBoleta({ ...boleta, cliente: { ...boleta.cliente, [e.target.name]: e.target.value } });
 
-    const cambiarProducto = (indice, campo, valor) =>
-        setBoleta({
-            ...boleta,
-            productos: boleta.productos.map((p, i) => (i === indice ? { ...p, [campo]: valor } : p))
-        });
-
     const subtotalDe = (p) => (Number(p.precio) || 0) * (Number(p.cantidad) || 0);
     const total = boleta.productos.reduce((suma, p) => suma + subtotalDe(p), 0);
 
-    const guardar = (e) => {
+    const guardar = async (e) => {
         e.preventDefault();
 
-        const productos = boleta.productos.map((p) => {
-            const cantidad = parseInt(p.cantidad) || 1;
-            const precio = parseFloat(p.precio) || 0;
-            return { ...p, cantidad, precio, subtotal: cantidad * precio };
-        });
-        const actualizada = {
-            ...boleta,
-            productos,
-            total: productos.reduce((suma, p) => suma + p.subtotal, 0)
-        };
-        setBoleta(actualizada);
-        setGuardada(true);
-        setTimeout(() => navigate('/admin/boletas'), 1500);
+        const cliente = boleta.cliente || {};
+        try {
+            await AdminService.actualizarOrden(boleta.id, {
+                estado: boleta.estado,
+                metodoPago: boleta.metodoPago,
+                calle: cliente.calle,
+                departamento: cliente.departamento,
+                region: cliente.region,
+                comuna: cliente.comuna,
+                indicaciones: cliente.indicaciones
+            });
+            setError('');
+            setGuardada(true);
+            setTimeout(() => navigate('/admin/boletas'), 1500);
+        } catch (err) {
+            setError(err.response?.data?.error || 'No se pudo actualizar la boleta.');
+        }
     };
 
     const titulo = editable ? `Editando boleta #${boleta.numero}` : `Detalle de boleta #${boleta.numero}`;
@@ -105,6 +104,7 @@ const DetalleBoleta = ({ editable = false }) => {
                 <div className="mb-4 p-2 text-center text-uppercase caja-gris fuente-palabras admin-titulo-formulario">
                     {titulo}
                 </div>
+                {error && <div className="alert alert-danger text-center" role="alert">{error}</div>}
                 {guardada && (
                     <div className="alert alert-success text-center" role="alert">
                         Boleta actualizada con éxito.
@@ -112,9 +112,23 @@ const DetalleBoleta = ({ editable = false }) => {
                 )}
                 <form onSubmit={guardar}>
                     <div className="row">
-                        <Campo etiqueta="Número" name="numero" valor={boleta.numero} editable={false} col="col-12 col-md-4" />
-                        <Campo etiqueta="Fecha" name="fecha" valor={boleta.fecha} editable={false} col="col-12 col-md-4" />
-                        <div className="col-12 col-md-4 mb-3">
+                        <Campo etiqueta="Número" name="numero" valor={boleta.numero} editable={false} col="col-12 col-md-3" />
+                        <Campo etiqueta="Fecha" name="fecha" valor={boleta.fecha ? String(boleta.fecha).replace('T', ' ').substring(0, 19) : ''} editable={false} col="col-12 col-md-3" />
+                        <div className="col-12 col-md-3 mb-3">
+                            <label className="form-label text-uppercase admin-etiqueta-form">Estado</label>
+                            <select
+                                name="estado"
+                                className="form-select rounded-0 border-dark"
+                                value={boleta.estado || ''}
+                                onChange={cambiarGeneral}
+                                disabled={!editable}
+                            >
+                                {['PENDIENTE_PAGO', 'PAGADO', 'FALLIDO', 'EN_PREPARACION', 'DESPACHADO', 'ENTREGADO', 'CANCELADO'].map((e) => (
+                                    <option key={e} value={e}>{e}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="col-12 col-md-3 mb-3">
                             <label className="form-label text-uppercase admin-etiqueta-form">Método de pago</label>
                             <select
                                 name="metodoPago"
@@ -132,9 +146,9 @@ const DetalleBoleta = ({ editable = false }) => {
 
                     <h6 className="fuente-palabras text-uppercase border-bottom border-dark pb-2 mt-4">Datos del Cliente</h6>
                     <div className="row">
-                        <Campo etiqueta="Nombre" name="nombre" valor={c.nombre} onChange={cambiarCliente} editable={editable} requerido />
-                        <Campo etiqueta="Apellidos" name="apellidos" valor={c.apellidos} onChange={cambiarCliente} editable={editable} requerido />
-                        <Campo etiqueta="Correo" name="correo" valor={c.correo} onChange={cambiarCliente} editable={editable} tipo="email" requerido col="col-12" />
+                        <Campo etiqueta="Nombre" name="nombre" valor={c.nombre} editable={false} />
+                        <Campo etiqueta="Apellidos" name="apellidos" valor={c.apellidos} editable={false} />
+                        <Campo etiqueta="Correo" name="correo" valor={c.correo} editable={false} tipo="email" col="col-12" />
                     </div>
 
                     <h6 className="fuente-palabras text-uppercase border-bottom border-dark pb-2 mt-4">Dirección de Entrega</h6>
@@ -175,9 +189,7 @@ const DetalleBoleta = ({ editable = false }) => {
                                                 type="text"
                                                 className="form-control rounded-0 border-dark"
                                                 value={p.nombre || ''}
-                                                onChange={(e) => cambiarProducto(i, 'nombre', e.target.value)}
-                                                readOnly={!editable}
-                                                required={editable}
+                                                readOnly
                                             />
                                         </td>
                                         <td>
@@ -187,9 +199,7 @@ const DetalleBoleta = ({ editable = false }) => {
                                                 min="1"
                                                 step="1"
                                                 value={p.cantidad || 1}
-                                                onChange={(e) => cambiarProducto(i, 'cantidad', e.target.value)}
-                                                readOnly={!editable}
-                                                required={editable}
+                                                readOnly
                                             />
                                         </td>
                                         <td>
@@ -199,9 +209,7 @@ const DetalleBoleta = ({ editable = false }) => {
                                                 min="0"
                                                 step="any"
                                                 value={p.precio || 0}
-                                                onChange={(e) => cambiarProducto(i, 'precio', e.target.value)}
-                                                readOnly={!editable}
-                                                required={editable}
+                                                readOnly
                                             />
                                         </td>
                                         <td className="text-end fw-bold">CLP${subtotalDe(p)}</td>
@@ -233,3 +241,4 @@ const DetalleBoleta = ({ editable = false }) => {
 };
 
 export default DetalleBoleta;
+

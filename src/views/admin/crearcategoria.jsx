@@ -1,24 +1,21 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { obtenerCategorias, guardarCategorias } from '../../data/catalogoAdmin';
+import AdminService from '../../services/AdminService';
 
 const CrearCategoria = () => {
     const navigate = useNavigate();
     const [nombre, setNombre] = useState('');
     const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const limpio = nombre.trim();
-        const categorias = obtenerCategorias();
 
-        if (categorias.some((c) => c.toLowerCase() === limpio.toLowerCase())) {
-            setError('Ya existe una categoría con ese nombre.');
-            return;
+        try {
+            await AdminService.crearCategoria({ nombre: nombre.trim() });
+            navigate('/admin/categorias');
+        } catch (err) {
+            setError(err.response?.data?.error || 'No se pudo crear la categoría.');
         }
-
-        guardarCategorias([...categorias, limpio]);
-        navigate('/admin/categorias');
     };
 
     return (

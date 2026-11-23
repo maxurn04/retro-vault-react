@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import OrdenesService from '../../services/OrdenesService';
+import AdminService from '../../services/AdminService';
 
 const MostrarBoletas = () => {
     const [boletas, setBoletas] = useState([]);
     const [porBorrar, setPorBorrar] = useState(null);
+    const [error, setError] = useState('');
 
     useEffect(() => {
-        OrdenesService.obtenerBoletas()
+        AdminService.listarOrdenes()
             .then((data) => {
                 if (Array.isArray(data)) {
                     setBoletas(data);
@@ -17,13 +18,21 @@ const MostrarBoletas = () => {
             })
             .catch(() => {
                 setBoletas([]);
+                setError('No se pudieron cargar las boletas.');
             });
     }, []);
 
-    const confirmarBorrado = () => {
-        const lista = boletas.filter((b) => String(b.numero || b.numeroOrden) !== String(porBorrar));
-        setBoletas(lista);
+    const confirmarBorrado = async () => {
+        const boleta = boletas.find((b) => String(b.numero || b.numeroOrden) === String(porBorrar));
         setPorBorrar(null);
+        if (!boleta) return;
+        try {
+            await AdminService.eliminarOrden(boleta.id);
+            setBoletas((lista) => lista.filter((b) => b.id !== boleta.id));
+            setError('');
+        } catch (e) {
+            setError(e.response?.data?.error || 'No se pudo borrar la boleta.');
+        }
     };
 
     return (
@@ -31,6 +40,8 @@ const MostrarBoletas = () => {
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
                 <h2 className="fuente-palabras mb-3 mb-md-0 admin-titulo-pagina">Gestión de Boletas</h2>
             </div>
+
+            {error && <div className="alert alert-danger">{error}</div>}
 
             <div className="p-4 admin-caja-tabla">
                 <div className="admin-ancho-tabla">
@@ -43,7 +54,7 @@ const MostrarBoletas = () => {
                         <div className="col-3 text-center">Acciones</div>
                     </div>
 
-                    {boletas.length === 0 && (
+                    {boletas.length === 0 && !error && (
                         <p className="text-center text-muted my-3">No hay boletas registradas.</p>
                     )}
 
@@ -59,10 +70,10 @@ const MostrarBoletas = () => {
                                 <div className="col-2">{b.metodoPago}</div>
                                 <div className="col-2">CLP${b.total}</div>
                                 <div className="col-3 d-flex justify-content-center gap-1">
-                                    <Link to={`/admin/boletas/${num}`} className="btn admin-btn-nuevo btn-sm" title="Ver detalles" aria-label="Ver detalles">
+                                    <Link to={`/admin/boletas/${encodeURIComponent(num)}`} className="btn admin-btn-nuevo btn-sm" title="Ver detalles" aria-label="Ver detalles">
                                         <i className="bi bi-eye"></i>
                                     </Link>
-                                    <Link to={`/admin/boletas/${num}/editar`} className="btn admin-btn-nuevo btn-sm" title="Editar" aria-label="Editar">
+                                    <Link to={`/admin/boletas/${encodeURIComponent(num)}/editar`} className="btn admin-btn-nuevo btn-sm" title="Editar" aria-label="Editar">
                                         <i className="bi bi-pencil"></i>
                                     </Link>
                                     <button type="button" className="btn btn-danger btn-sm" title="Borrar" aria-label="Borrar" onClick={() => setPorBorrar(num)}>
@@ -83,7 +94,7 @@ const MostrarBoletas = () => {
                                     <h5 className="modal-title">Borrar boleta</h5>
                                 </div>
                                 <div className="modal-body">
-                                    ¿Seguro que deseas borrar la boleta #{porBorrar}? Esta acción no se puede deshacer.
+                                    ¿Seguro que deseas borrar la boleta {porBorrar}? Esta acción no se puede deshacer.
                                 </div>
                                 <div className="modal-footer">
                                     <button type="button" className="btn btn-secondary" onClick={() => setPorBorrar(null)}>Cancelar</button>
