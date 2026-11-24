@@ -18,7 +18,8 @@ const Navbar = () => {
         navigate('/');
     };
 
-    const esAdminOVendedor = usuarioActivo?.rol === 'Administrador' || usuarioActivo?.rol === 'Vendedor' || usuarioActivo?.tipo === 'Administrador' || usuarioActivo?.tipo === 'Vendedor';
+    const rolActivo = (usuarioActivo?.rol || usuarioActivo?.tipo || '').toUpperCase();
+    const esAdminOVendedor = ['ADMIN', 'ADMINISTRADOR', 'VENDEDOR'].includes(rolActivo);
 
     return (
         <nav className="navbar navbar-expand-lg navbar-estilo">

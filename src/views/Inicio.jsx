@@ -55,7 +55,8 @@ const Inicio = () => {
 
             const mensajeBienvenida = `¡Bienvenido, ${usuario.nombre}! (${usuario.rol || usuario.tipo})`;
             mostrarPopup("¡Acceso Correcto!", mensajeBienvenida, () => {
-                if (usuario.rol === 'Administrador' || usuario.tipo === 'Administrador') {
+                const rolUpper = (usuario.rol || usuario.tipo || '').toUpperCase();
+                if (rolUpper === 'ADMIN' || rolUpper === 'ADMINISTRADOR') {
                     navigate('/admin');
                 } else {
                     navigate('/');
@@ -99,7 +100,8 @@ const Inicio = () => {
             iniciarSesion(usuario, token);
 
             mostrarPopup("¡Acceso con Google Correcto!", `¡Bienvenido, ${usuario.nombre}!`, () => {
-                if (usuario.rol === 'Administrador' || usuario.tipo === 'Administrador') {
+                const rolUpper = (usuario.rol || usuario.tipo || '').toUpperCase();
+                if (rolUpper === 'ADMIN' || rolUpper === 'ADMINISTRADOR') {
                     navigate('/admin');
                 } else {
                     navigate('/');

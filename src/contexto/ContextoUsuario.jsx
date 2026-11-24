@@ -23,7 +23,7 @@ export const ProveedorUsuario = ({ children }) => {
                         nombre: data.nombre,
                         correo: data.correo,
                         rol: data.rol,
-                        tipo: data.rol
+                        tipo: data.tipo || (data.rol === 'ADMIN' ? 'Administrador' : data.rol)
                     };
                     setUsuarioActivo(usuario);
                     localStorage.setItem('usuario_activo', JSON.stringify(usuario));
