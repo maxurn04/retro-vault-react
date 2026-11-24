@@ -78,9 +78,9 @@ const Home = () => {
             <article>
                 <div className="container mt-4">
                     <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h2 className="fuente-palabras m-0">Consolas <span style={{ color: '#bca624', fontSize: '1.2rem' }}>Ver mas...</span></h2>
-                        <Link to="/productos-cons-jueg" className="btn boton-reini">
-                            Explorar Todas
+                        <h2 className="fuente-palabras m-0">Consolas <span style={{ color: '#bca624', fontSize: '1.2rem' }}></span></h2>
+                        <Link to="/productos-cons-jueg" style={{ color: '#bca624', fontSize: '1.2rem' }} className="btn boton-reini">
+                            Explorar Todo
                         </Link>
                     </div>
                     
@@ -105,9 +105,9 @@ const Home = () => {
             <article>
                 <div className="container mt-4">
                     <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h2 className="fuente-palabras m-0">Accesorios <span style={{ color: '#bca624', fontSize: '1.2rem' }}>Ver mas...</span></h2>
-                        <Link to="/productos-accesorios" className="btn boton-reini">
-                            Explorar Todos
+                        <h2 className="fuente-palabras m-0">Accesorios <span style={{ color: '#bca624', fontSize: '1.2rem' }}></span></h2>
+                        <Link to="/productos-accesorios" style={{ color: '#bca624', fontSize: '1.2rem' }} className="btn boton-reini">
+                            Explorar Todo
                         </Link>
                     </div>
                     
